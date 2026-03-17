@@ -38,7 +38,7 @@ const ConciergeSection = () => {
           >
             <img
               src={clubCardImg}
-              alt="Lume Membership Card"
+              alt="portugal4you Membership Card"
               className="w-full max-w-lg mx-auto"
             />
           </motion.div>
