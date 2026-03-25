@@ -24,49 +24,38 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+    <div className="flex min-h-screen items-center justify-center bg-admin-bg">
       <div className="w-full max-w-sm space-y-8 p-8">
-        {/* Logo */}
         <div className="text-center">
-          <h1 className="text-2xl font-light tracking-[0.2em] text-white">
-            LUME
-          </h1>
-          <p className="mt-1 text-xs tracking-[0.15em] uppercase text-zinc-500">
+          <h1 className="text-2xl font-light tracking-[0.2em] text-admin-text">LUME</h1>
+          <p className="mt-1 text-xs tracking-[0.15em] uppercase text-admin-text-muted">
             Content Management
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Admin password"
-              autoFocus
-              className="w-full rounded-md border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-600"
-            />
-          </div>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Admin password"
+            autoFocus
+            className="w-full rounded-md border border-admin-border bg-admin-surface px-4 py-3 text-sm text-admin-text placeholder-admin-text-muted outline-none transition focus:border-admin-text-muted focus:ring-1 focus:ring-admin-border"
+          />
 
-          {error && (
-            <p className="text-sm text-red-400">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-500">{error}</p>}
 
           <button
             type="submit"
             disabled={loading || !password}
-            className="w-full rounded-md bg-white px-4 py-3 text-sm font-medium text-zinc-900 transition hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-md bg-admin-btn px-4 py-3 text-sm font-medium text-white transition hover:bg-admin-btn-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Signing in..." : "Sign In"}
           </button>
         </form>
 
         <div className="text-center">
-          <a
-            href="/"
-            className="text-xs text-zinc-600 transition hover:text-zinc-400"
-          >
+          <a href="/" className="text-xs text-admin-text-muted transition hover:text-admin-text-secondary">
             ← Back to website
           </a>
         </div>

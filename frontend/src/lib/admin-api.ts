@@ -1,60 +1,36 @@
 // frontend/src/lib/admin-api.ts
-// Admin API client with JWT token management
 
 const TOKEN_KEY = "lume_admin_token";
-
-// ---------------------------------------------------------------------------
-// Token helpers
-// ---------------------------------------------------------------------------
 
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
-
 export function setToken(token: string) {
   localStorage.setItem(TOKEN_KEY, token);
 }
-
 export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
-
 export function isAuthenticated(): boolean {
   return !!getToken();
 }
 
-// ---------------------------------------------------------------------------
-// Base fetch wrapper
-// ---------------------------------------------------------------------------
-
-async function adminFetch(
-  path: string,
-  options: RequestInit = {}
-): Promise<Response> {
+async function adminFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const token = getToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(options.headers as Record<string, string>),
   };
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
   const res = await fetch(`/api/admin${path}`, { ...options, headers });
-
-  // Auto-logout on 401
   if (res.status === 401) {
     clearToken();
     window.location.href = "/admin/login";
     throw new Error("Session expired");
   }
-
   return res;
 }
-
-// ---------------------------------------------------------------------------
-// Auth
-// ---------------------------------------------------------------------------
 
 export async function login(password: string) {
   const res = await fetch("/api/admin/login", {
@@ -77,19 +53,11 @@ export async function verifyAuth() {
   return res.json();
 }
 
-// ---------------------------------------------------------------------------
-// Dashboard
-// ---------------------------------------------------------------------------
-
 export async function getStats() {
   const res = await adminFetch("/stats");
   if (!res.ok) throw new Error("Failed to fetch stats");
   return res.json();
 }
-
-// ---------------------------------------------------------------------------
-// Listings CRUD
-// ---------------------------------------------------------------------------
 
 export interface ListingsQuery {
   status?: string;
@@ -106,7 +74,6 @@ export async function getListings(params: ListingsQuery = {}) {
   if (params.search) query.set("search", params.search);
   if (params.limit) query.set("limit", String(params.limit));
   if (params.offset) query.set("offset", String(params.offset));
-
   const qs = query.toString();
   const res = await adminFetch(`/listings${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("Failed to fetch listings");
@@ -120,10 +87,7 @@ export async function getListing(id: string) {
 }
 
 export async function createListing(data: Record<string, unknown>) {
-  const res = await adminFetch("/listings", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+  const res = await adminFetch("/listings", { method: "POST", body: JSON.stringify(data) });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to create listing");
@@ -132,10 +96,7 @@ export async function createListing(data: Record<string, unknown>) {
 }
 
 export async function updateListing(id: string, data: Record<string, unknown>) {
-  const res = await adminFetch(`/listings/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+  const res = await adminFetch(`/listings/${id}`, { method: "PUT", body: JSON.stringify(data) });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.detail || "Failed to update listing");
@@ -148,10 +109,6 @@ export async function deleteListing(id: string) {
   if (!res.ok) throw new Error("Failed to delete listing");
   return res.json();
 }
-
-// ---------------------------------------------------------------------------
-// Contacts
-// ---------------------------------------------------------------------------
 
 export interface ContactsQuery {
   source?: string;
@@ -166,7 +123,6 @@ export async function getContacts(params: ContactsQuery = {}) {
   if (params.search) query.set("search", params.search);
   if (params.limit) query.set("limit", String(params.limit));
   if (params.offset) query.set("offset", String(params.offset));
-
   const qs = query.toString();
   const res = await adminFetch(`/contacts${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("Failed to fetch contacts");

@@ -23,20 +23,12 @@ export default function AdminListings() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-listings", status, search],
-    queryFn: () =>
-      getListings({
-        status: status || undefined,
-        search: search || undefined,
-        limit: 100,
-      }),
+    queryFn: () => getListings({ status: status || undefined, search: search || undefined, limit: 100 }),
   });
 
   const deleteM = useMutation({
     mutationFn: deleteListing,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-listings"] });
-      setDeleteId(null);
-    },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-listings"] }); setDeleteId(null); },
   });
 
   const listings = data?.listings || [];
@@ -44,142 +36,63 @@ export default function AdminListings() {
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-light text-white">Listings</h1>
-          <p className="text-sm text-zinc-500 mt-1">{total} total</p>
+          <h1 className="text-2xl font-light text-admin-text">Listings</h1>
+          <p className="text-sm text-admin-text-muted mt-1">{total} total</p>
         </div>
-        <button
-          onClick={() => navigate("/admin/listings/new")}
-          className="rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-900 transition hover:bg-zinc-200"
-        >
+        <button onClick={() => navigate("/admin/listings/new")} className="rounded-md bg-admin-btn px-4 py-2 text-sm font-medium text-white transition hover:bg-admin-btn-hover">
           + New Listing
         </button>
       </div>
 
-      {/* Filters */}
       <div className="flex gap-3 mb-6">
-        <input
-          type="text"
-          placeholder="Search title, reference, city..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 max-w-sm rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-white placeholder-zinc-600 outline-none transition focus:border-zinc-600"
-        />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className="rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-300 outline-none transition focus:border-zinc-600"
-        >
-          {STATUS_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
+        <input type="text" placeholder="Search title, reference, city..." value={search} onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 max-w-sm rounded-md border border-admin-border bg-admin-surface px-3 py-2 text-sm text-admin-text placeholder-admin-text-muted outline-none transition focus:border-admin-text-muted" />
+        <select value={status} onChange={(e) => setStatus(e.target.value)}
+          className="rounded-md border border-admin-border bg-admin-surface px-3 py-2 text-sm text-admin-text-secondary outline-none transition focus:border-admin-text-muted">
+          {STATUS_OPTIONS.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
       </div>
 
-      {/* Table */}
       {isLoading ? (
-        <div className="py-20 text-center text-sm text-zinc-500">Loading...</div>
+        <div className="py-20 text-center text-sm text-admin-text-muted">Loading...</div>
       ) : listings.length === 0 ? (
-        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-12 text-center">
-          <p className="text-sm text-zinc-500 mb-3">
-            {search || status ? "No listings match your filters" : "No listings yet"}
-          </p>
+        <div className="rounded-lg border border-admin-border bg-admin-surface p-12 text-center">
+          <p className="text-sm text-admin-text-muted mb-3">{search || status ? "No listings match your filters" : "No listings yet"}</p>
           {!search && !status && (
-            <button
-              onClick={() => navigate("/admin/listings/new")}
-              className="rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-900 transition hover:bg-zinc-200"
-            >
+            <button onClick={() => navigate("/admin/listings/new")} className="rounded-md bg-admin-btn px-4 py-2 text-sm font-medium text-white transition hover:bg-admin-btn-hover">
               Create your first listing
             </button>
           )}
         </div>
       ) : (
-        <div className="rounded-lg border border-zinc-800 overflow-hidden">
+        <div className="rounded-lg border border-admin-border bg-admin-surface overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 bg-zinc-900/50">
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Ref
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Property
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Beds
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Actions
-                </th>
+              <tr className="border-b border-admin-border-light bg-admin-surface-hover">
+                <TH>Ref</TH><TH>Property</TH><TH>Type</TH><TH>Location</TH>
+                <TH className="text-right">Price</TH><TH className="text-center">Beds</TH><TH>Status</TH><TH className="text-right">Actions</TH>
               </tr>
             </thead>
             <tbody>
               {listings.map((l: any) => (
-                <tr
-                  key={l.id}
-                  className="border-b border-zinc-800/50 transition hover:bg-zinc-900/50"
-                >
-                  <td className="px-4 py-3 text-xs text-zinc-500 font-mono">
-                    {l.reference}
-                  </td>
+                <tr key={l.id} className="border-b border-admin-border-light last:border-0 transition hover:bg-admin-surface-hover">
+                  <td className="px-4 py-3 text-xs text-admin-text-muted font-mono">{l.reference}</td>
                   <td className="px-4 py-3">
-                    <button
-                      onClick={() => navigate(`/admin/listings/${l.id}`)}
-                      className="font-medium text-zinc-200 hover:text-white text-left transition"
-                    >
+                    <button onClick={() => navigate(`/admin/listings/${l.id}`)} className="font-medium text-admin-text hover:text-admin-btn text-left transition">
                       {l.title}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-zinc-400 capitalize text-xs">
-                    {l.property_type?.replace("_", " ")}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-400">
-                    {l.city}
-                    {l.area ? `, ${l.area}` : ""}
-                  </td>
-                  <td className="px-4 py-3 text-right text-zinc-300 tabular-nums">
-                    {l.price
-                      ? `€${Number(l.price).toLocaleString()}`
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-center text-zinc-400">
-                    {l.bedrooms ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={l.status} />
-                  </td>
+                  <td className="px-4 py-3 text-admin-text-secondary capitalize text-xs">{l.property_type?.replace("_", " ")}</td>
+                  <td className="px-4 py-3 text-admin-text-secondary">{l.city}{l.area ? `, ${l.area}` : ""}</td>
+                  <td className="px-4 py-3 text-right text-admin-text tabular-nums">{l.price ? `€${Number(l.price).toLocaleString()}` : "—"}</td>
+                  <td className="px-4 py-3 text-center text-admin-text-secondary">{l.bedrooms ?? "—"}</td>
+                  <td className="px-4 py-3"><StatusBadge status={l.status} /></td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => navigate(`/admin/listings/${l.id}`)}
-                        className="rounded px-2 py-1 text-xs text-zinc-400 transition hover:bg-zinc-800 hover:text-white"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteId(l.id);
-                        }}
-                        className="rounded px-2 py-1 text-xs text-zinc-500 transition hover:bg-red-500/10 hover:text-red-400"
-                      >
-                        Delete
-                      </button>
+                      <button onClick={() => navigate(`/admin/listings/${l.id}`)} className="rounded px-2 py-1 text-xs text-admin-text-secondary transition hover:bg-admin-surface-hover hover:text-admin-text">Edit</button>
+                      <button onClick={(e) => { e.stopPropagation(); setDeleteId(l.id); }} className="rounded px-2 py-1 text-xs text-admin-text-muted transition hover:bg-red-50 hover:text-red-500">Delete</button>
                     </div>
                   </td>
                 </tr>
@@ -189,26 +102,14 @@ export default function AdminListings() {
         </div>
       )}
 
-      {/* Delete confirmation */}
       {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-sm rounded-lg border border-zinc-800 bg-zinc-900 p-6">
-            <h3 className="text-sm font-medium text-white mb-2">Delete listing?</h3>
-            <p className="text-sm text-zinc-400 mb-6">
-              This action cannot be undone.
-            </p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="w-full max-w-sm rounded-lg border border-admin-border bg-admin-surface p-6 shadow-lg">
+            <h3 className="text-sm font-medium text-admin-text mb-2">Delete listing?</h3>
+            <p className="text-sm text-admin-text-secondary mb-6">This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setDeleteId(null)}
-                className="rounded-md border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300 transition hover:bg-zinc-800"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => deleteM.mutate(deleteId)}
-                disabled={deleteM.isPending}
-                className="rounded-md bg-red-600 px-3 py-1.5 text-sm text-white transition hover:bg-red-700 disabled:opacity-50"
-              >
+              <button onClick={() => setDeleteId(null)} className="rounded-md border border-admin-border px-3 py-1.5 text-sm text-admin-text-secondary transition hover:bg-admin-surface-hover">Cancel</button>
+              <button onClick={() => deleteM.mutate(deleteId)} disabled={deleteM.isPending} className="rounded-md bg-red-500 px-3 py-1.5 text-sm text-white transition hover:bg-red-600 disabled:opacity-50">
                 {deleteM.isPending ? "Deleting..." : "Delete"}
               </button>
             </div>
@@ -219,22 +120,21 @@ export default function AdminListings() {
   );
 }
 
+function TH({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <th className={`px-4 py-3 text-left text-xs font-medium text-admin-text-muted uppercase tracking-wider ${className}`}>{children}</th>;
+}
+
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
-    available: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-    draft: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-    reserved: "bg-amber-500/10 text-amber-400 border-amber-500/20",
-    sold: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    rented: "bg-blue-500/10 text-blue-400 border-blue-500/20",
-    off_market: "bg-red-500/10 text-red-400 border-red-500/20",
+    available: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    draft: "bg-stone-100 text-stone-500 border-stone-200",
+    reserved: "bg-amber-50 text-amber-700 border-amber-200",
+    sold: "bg-blue-50 text-blue-700 border-blue-200",
+    rented: "bg-blue-50 text-blue-700 border-blue-200",
+    off_market: "bg-red-50 text-red-600 border-red-200",
   };
-
   return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${
-        colors[status] || colors.draft
-      }`}
-    >
+    <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs ${colors[status] || colors.draft}`}>
       {status?.replace("_", " ")}
     </span>
   );
