@@ -1,0 +1,21 @@
+# Root requirements.txt — Nixpacks reads this during build
+# (backend/requirements.txt is for local dev reference only)
+
+# Web framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# Database
+supabase>=2.0.0
+
+# Authentication
+python-jose[cryptography]>=3.3.0
+
+# Data validation
+pydantic>=2.0.0
+
+# HTTP client
+httpx>=0.26.0
+
+# Environment variables
+python-dotenv>=1.0.0
