@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { setCookie, EMAIL_SUBMITTED_KEY } from "@/lib/cookies";
 
 const questions = [
   {
@@ -79,6 +80,9 @@ const QuestionnaireSection = ({ onComplete, isCompleted }: QuestionnaireSectionP
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || "Something went wrong. Please try again.");
       }
+
+      // Set cookie so returning visitors skip the questionnaire (90 days)
+      setCookie(EMAIL_SUBMITTED_KEY, "1", 90);
 
       // Success — trigger the parent's completion handler
       onComplete();

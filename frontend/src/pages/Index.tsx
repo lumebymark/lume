@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -10,9 +10,14 @@ import ConciergeSection from "@/components/ConciergeSection";
 import InvestmentSection from "@/components/InvestmentSection";
 import PrivateAccessSection from "@/components/PrivateAccessSection";
 import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
+import { getCookie, EMAIL_SUBMITTED_KEY } from "@/lib/cookies";
 
 const Index = () => {
-  const [unlocked, setUnlocked] = useState(false);
+  // Check if the visitor already submitted their email (cookie exists)
+  const [unlocked, setUnlocked] = useState(() => {
+    return !!getCookie(EMAIL_SUBMITTED_KEY);
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -38,6 +43,7 @@ const Index = () => {
 
       <PrivateAccessSection />
       <Footer />
+      <CookieConsent />
     </div>
   );
 };
