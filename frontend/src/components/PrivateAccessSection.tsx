@@ -1,13 +1,43 @@
+// frontend/src/components/PrivateAccessSection.tsx
 import { useState } from "react";
 import { motion } from "framer-motion";
 
 const PrivateAccessSection = () => {
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/submit/private-access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone || undefined,
+          message: form.message || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || "Something went wrong. Please try again.");
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -24,7 +54,7 @@ const PrivateAccessSection = () => {
           </h2>
           <div className="w-16 h-px bg-primary mx-auto mb-8" />
           <p className="text-sm text-ocean-light/70 leading-relaxed max-w-md mx-auto mb-12">
-            Request a private consultation with our team. Share your vision and 
+            Request a private consultation with our team. Share your vision and
             we'll curate a bespoke plan for your life in Portugal.
           </p>
         </motion.div>
@@ -44,7 +74,8 @@ const PrivateAccessSection = () => {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
-              className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
             />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <input
@@ -53,14 +84,16 @@ const PrivateAccessSection = () => {
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
-                className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
               />
               <input
                 type="tel"
                 placeholder="Phone"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors"
+                disabled={isSubmitting}
+                className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
               />
             </div>
             <textarea
@@ -68,13 +101,20 @@ const PrivateAccessSection = () => {
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               rows={4}
-              className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors resize-none"
+              disabled={isSubmitting}
+              className="w-full px-4 py-3 bg-transparent border border-warm-white/15 text-warm-white text-sm tracking-wider placeholder:text-warm-white/30 focus:outline-none focus:border-primary/50 transition-colors resize-none disabled:opacity-50"
             />
+
+            {error && (
+              <p className="text-sm text-red-400 text-center">{error}</p>
+            )}
+
             <button
               type="submit"
-              className="w-full py-4 bg-primary text-primary-foreground text-xs tracking-[0.25em] uppercase hover:bg-primary/90 transition-colors"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-primary text-primary-foreground text-xs tracking-[0.25em] uppercase hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Request Private Access
+              {isSubmitting ? "Sending..." : "Request Private Access"}
             </button>
           </motion.form>
         ) : (
