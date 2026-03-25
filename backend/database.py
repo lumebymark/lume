@@ -514,12 +514,11 @@ def admin_delete_contact(contact_id: str) -> bool:
 
 
 def create_contact(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Create a contact (public — used by questionnaire and private access forms).
-    Uses anon client so RLS insert policy applies.
-    """
     try:
-        client = _get_client()
+        client = _get_admin_client()
+        # DEBUG: which key is this client actually using?
+        print(f"[DB DEBUG] Using admin client: {type(client)}")
+        print(f"[DB DEBUG] Secret key env: {os.getenv('SUPABASE_SECRET_KEY', 'NOT SET')[:20]}...")
         result = client.table("contacts").insert(data).execute()
         return result.data[0] if result.data else None
     except Exception as e:
