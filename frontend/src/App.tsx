@@ -17,6 +17,8 @@ import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import AdminListings from "./pages/admin/AdminListings.tsx";
 import AdminListingForm from "./pages/admin/AdminListingForm.tsx";
 import AdminContacts from "./pages/admin/AdminContacts.tsx";
+import AdminServices from "./pages/admin/AdminServices.tsx";
+
 
 const queryClient = new QueryClient();
 
@@ -40,6 +42,7 @@ const App = () => (
             <Route path="listings/new" element={<AdminListingForm />} />
             <Route path="listings/:id" element={<AdminListingForm />} />
             <Route path="contacts" element={<AdminContacts />} />
+            <Route path="services" element={<AdminServices />} />
           </Route>
 
           {/* Catch-all */}
