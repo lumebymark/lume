@@ -1,0 +1,12 @@
+{
+  "name": "lume-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm install && npm run dev",
+    "build": "cd frontend && npm install && npm run build",
+    "preview": "cd frontend && npm run preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.100.1"
+  }
+}
