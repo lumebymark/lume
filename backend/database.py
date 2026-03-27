@@ -179,46 +179,192 @@ def get_all_property_slugs() -> List[Dict[str, Any]]:
 
 
 def query_properties(
+    region: Optional[str] = None,
     city: Optional[str] = None,
+    area: Optional[str] = None,
     property_type: Optional[str] = None,
     listing_type: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
     min_bedrooms: Optional[int] = None,
+    max_bedrooms: Optional[int] = None,
+    min_bathrooms: Optional[int] = None,
+    max_bathrooms: Optional[int] = None,
+    min_area: Optional[float] = None,
+    max_area: Optional[float] = None,
+    condition: Optional[str] = None,
+    views: Optional[List[str]] = None,        # list of view_type values
+    features: Optional[List[str]] = None,     # list of boolean column names
+    featured_only: bool = False,
+    sort_by: str = "featured",                # featured | newest | price_asc | price_desc
     limit: int = 20,
     offset: int = 0,
-) -> List[Dict[str, Any]]:
-    """Query listings with filters (public API)."""
+) -> Dict[str, Any]:
+    """Query listings with full filter set (public API). Returns {items, total}."""
     try:
         client = _get_client()
-        q = (
-            client.table("listings")
-            .select(_LISTING_CARD_FIELDS)
-            .eq("status", "available")
-        )
-        if city:
-            q = q.ilike("city", f"%{city}%")
-        if property_type:
-            q = q.eq("property_type", property_type)
-        if listing_type:
-            q = q.eq("listing_type", listing_type)
-        if min_price is not None:
-            q = q.gte("price", min_price)
-        if max_price is not None:
-            q = q.lte("price", max_price)
-        if min_bedrooms is not None:
-            q = q.gte("bedrooms", min_bedrooms)
 
-        result = (
-            q.order("featured", desc=True)
-            .order("published_at", desc=True)
-            .range(offset, offset + limit - 1)
-            .execute()
-        )
-        return result.data or []
+        # ── Build count query (same filters, no range/order) ──────────────────
+        count_q = client.table("listings").select("id", count="exact").eq("status", "available")
+        data_q  = client.table("listings").select(_LISTING_CARD_FIELDS).eq("status", "available")
+
+        def apply_filters(q):
+            if region:
+                q = q.ilike("region", f"%{region}%")
+            if city:
+                q = q.ilike("city", f"%{city}%")
+            if area:
+                q = q.ilike("area", f"%{area}%")
+            if property_type:
+                q = q.eq("property_type", property_type)
+            if listing_type:
+                q = q.eq("listing_type", listing_type)
+            if min_price is not None:
+                q = q.gte("price", min_price)
+            if max_price is not None:
+                q = q.lte("price", max_price)
+            if min_bedrooms is not None:
+                q = q.gte("bedrooms", min_bedrooms)
+            if max_bedrooms is not None:
+                q = q.lte("bedrooms", max_bedrooms)
+            if min_bathrooms is not None:
+                q = q.gte("bathrooms", min_bathrooms)
+            if max_bathrooms is not None:
+                q = q.lte("bathrooms", max_bathrooms)
+            if min_area is not None:
+                q = q.gte("interior_living_area", min_area)
+            if max_area is not None:
+                q = q.lte("interior_living_area", max_area)
+            if condition:
+                q = q.eq("property_condition", condition)
+            if featured_only:
+                q = q.eq("featured", True)
+            # Boolean feature flags (pool, garage, garden, etc.)
+            if features:
+                for feature in features:
+                    q = q.eq(feature, True)
+            # Views array containment: each requested view must be in the array
+            if views:
+                for view in views:
+                    q = q.contains("views", [view])
+            return q
+
+        count_q = apply_filters(count_q)
+        data_q  = apply_filters(data_q)
+
+        # ── Count ──────────────────────────────────────────────────────────────
+        count_result = count_q.execute()
+        total = count_result.count if count_result.count is not None else 0
+
+        # ── Sort ──────────────────────────────────────────────────────────────
+        if sort_by == "price_asc":
+            data_q = data_q.order("price", desc=False)
+        elif sort_by == "price_desc":
+            data_q = data_q.order("price", desc=True)
+        elif sort_by == "newest":
+            data_q = data_q.order("published_at", desc=True)
+        else:  # "featured" (default)
+            data_q = data_q.order("featured", desc=True).order("published_at", desc=True)
+
+        result = data_q.range(offset, offset + limit - 1).execute()
+        return {"items": result.data or [], "total": total}
+
     except Exception as e:
         print(f"[DB] Error querying listings: {e}")
-        return []
+        return {"items": [], "total": 0}
+
+
+def get_property_facets() -> Dict[str, Any]:
+    """
+    Return all distinct filter values present in available listings.
+    Used to populate dropdowns and slider bounds on the Properties page.
+    Only reads available listings (respects RLS via publishable key).
+    """
+    try:
+        client = _get_client()
+        # Fetch only the fields we need for facet computation
+        result = client.table("listings").select(
+            "region, city, area, property_type, listing_type, "
+            "price, interior_living_area, bedrooms, bathrooms, "
+            "property_condition, views"
+        ).eq("status", "available").execute()
+
+        rows = result.data or []
+        if not rows:
+            return {
+                "regions": [],
+                "cities_by_region": {},
+                "areas_by_city": {},
+                "property_types": [],
+                "listing_types": [],
+                "price_range": {"min": 0, "max": 5000000},
+                "area_range": {"min": 0, "max": 500},
+                "bedroom_counts": [],
+                "bathroom_counts": [],
+                "conditions": [],
+                "views": [],
+            }
+
+        # Build cascading location sets
+        regions = sorted({r["region"] for r in rows if r.get("region")})
+
+        cities_by_region: Dict[str, Any] = {}
+        for r in rows:
+            reg = r.get("region") or ""
+            cit = r.get("city") or ""
+            if reg and cit:
+                cities_by_region.setdefault(reg, set()).add(cit)
+        cities_by_region = {k: sorted(v) for k, v in cities_by_region.items()}
+
+        areas_by_city: Dict[str, Any] = {}
+        for r in rows:
+            cit  = r.get("city") or ""
+            ar   = r.get("area") or ""
+            if cit and ar:
+                areas_by_city.setdefault(cit, set()).add(ar)
+        areas_by_city = {k: sorted(v) for k, v in areas_by_city.items()}
+
+        # Enums
+        property_types = sorted({r["property_type"] for r in rows if r.get("property_type")})
+        listing_types  = sorted({r["listing_type"]  for r in rows if r.get("listing_type")})
+        conditions     = sorted({r["property_condition"] for r in rows if r.get("property_condition")})
+
+        # Views — flatten the arrays
+        all_views: set = set()
+        for r in rows:
+            for v in (r.get("views") or []):
+                all_views.add(v)
+        views_list = sorted(all_views)
+
+        # Numeric ranges
+        prices = [r["price"] for r in rows if r.get("price") is not None]
+        areas  = [r["interior_living_area"] for r in rows if r.get("interior_living_area")]
+        beds   = sorted({r["bedrooms"] for r in rows if r.get("bedrooms") is not None})
+        baths  = sorted({r["bathrooms"] for r in rows if r.get("bathrooms") is not None})
+
+        return {
+            "regions": regions,
+            "cities_by_region": cities_by_region,
+            "areas_by_city": areas_by_city,
+            "property_types": property_types,
+            "listing_types": listing_types,
+            "price_range": {
+                "min": int(min(prices)) if prices else 0,
+                "max": int(max(prices)) if prices else 5000000,
+            },
+            "area_range": {
+                "min": int(min(areas)) if areas else 0,
+                "max": int(max(areas)) if areas else 500,
+            },
+            "bedroom_counts": beds,
+            "bathroom_counts": baths,
+            "conditions": conditions,
+            "views": views_list,
+        }
+
+    except Exception as e:
+        print(f"[DB] Error fetching property facets: {e}")
+        return {}
 
 
 # ---------------------------------------------------------------------------

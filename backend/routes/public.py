@@ -241,18 +241,87 @@ async def list_properties(
         return {"properties": [], "count": 0, "error": str(e)}
 
 
-@router.get("/properties/{slug}")
-async def get_property(slug: str):
-    """Get a single property by slug."""
+@router.get("/properties/facets")
+async def get_property_facets():
+    """
+    Return all distinct filter values present in live listings.
+    Used to populate cascading dropdowns and slider bounds on the
+    Properties page. Cached by the client — call once on page load.
+    """
     try:
-        from database import get_property_by_slug
-        prop = get_property_by_slug(slug)
-        if not prop:
-            return {"error": "Property not found"}, 404
-        return prop
+        from database import get_property_facets
+        return get_property_facets()
     except Exception as e:
         return {"error": str(e)}
 
+
+@router.get("/properties")
+async def list_properties(
+    # Location cascade
+    region:          Optional[str]   = Query(None),
+    city:            Optional[str]   = Query(None),
+    area:            Optional[str]   = Query(None),
+    # Property classification
+    type:            Optional[str]   = Query(None, description="property_type enum"),
+    listing_type:    Optional[str]   = Query(None, description="sale | rent | seasonal_rent"),
+    # Price range
+    min_price:       Optional[float] = Query(None),
+    max_price:       Optional[float] = Query(None),
+    # Rooms
+    min_bedrooms:    Optional[int]   = Query(None),
+    max_bedrooms:    Optional[int]   = Query(None),
+    min_bathrooms:   Optional[int]   = Query(None),
+    max_bathrooms:   Optional[int]   = Query(None),
+    # Area (m²)
+    min_area:        Optional[float] = Query(None),
+    max_area:        Optional[float] = Query(None),
+    # Condition & features
+    condition:       Optional[str]   = Query(None),
+    views:           Optional[str]   = Query(None, description="Comma-separated view types"),
+    features:        Optional[str]   = Query(None, description="Comma-separated boolean feature columns"),
+    featured_only:   bool            = Query(False),
+    # Sorting & pagination
+    sort_by:         str             = Query("featured", description="featured | newest | price_asc | price_desc"),
+    limit:           int             = Query(24, ge=1, le=100),
+    offset:          int             = Query(0, ge=0),
+):
+    """List properties with full filter support."""
+    try:
+        from database import query_properties
+
+        views_list    = [v.strip() for v in views.split(",")   if v.strip()] if views    else None
+        features_list = [f.strip() for f in features.split(",") if f.strip()] if features else None
+
+        result = query_properties(
+            region=region,
+            city=city,
+            area=area,
+            property_type=type,
+            listing_type=listing_type,
+            min_price=min_price,
+            max_price=max_price,
+            min_bedrooms=min_bedrooms,
+            max_bedrooms=max_bedrooms,
+            min_bathrooms=min_bathrooms,
+            max_bathrooms=max_bathrooms,
+            min_area=min_area,
+            max_area=max_area,
+            condition=condition,
+            views=views_list,
+            features=features_list,
+            featured_only=featured_only,
+            sort_by=sort_by,
+            limit=limit,
+            offset=offset,
+        )
+        return {
+            "properties": result.get("items", []),
+            "total":      result.get("total", 0),
+            "limit":      limit,
+            "offset":     offset,
+        }
+    except Exception as e:
+        return {"properties": [], "total": 0, "error": str(e)}
 
 @router.get("/locations")
 async def list_locations():

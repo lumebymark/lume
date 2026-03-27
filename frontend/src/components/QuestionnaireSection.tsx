@@ -23,11 +23,6 @@ const questions = [
     question: "Timeline",
     options: ["Now", "3–6 Months", "6–12 Months", "Just Exploring"],
   },
-  {
-    id: 5,
-    question: "What matters most?",
-    options: ["Schools & Lifestyle", "Tranquillity & Nature", "Investment Opportunities", "Healthcare Availability"],
-  },
 ];
 
 interface QuestionnaireSectionProps {
