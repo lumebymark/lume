@@ -137,7 +137,7 @@ export interface ListingsQuery {
   area?: string;
   // Classification
   type?: string;           // property_type
-  listing_type?: string;   // sale | rent | seasonal_rent
+  listing_type?: string;   // sale | rent
   // Price
   min_price?: number;
   max_price?: number;

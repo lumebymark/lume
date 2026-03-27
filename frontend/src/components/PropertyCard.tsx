@@ -27,7 +27,6 @@ function getTag(listing: Listing): string {
 const LISTING_TYPE_LABELS: Record<string, string> = {
   sale: "For Sale",
   rent: "For Rent",
-  seasonal_rent: "Seasonal",
 };
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -213,7 +213,7 @@ function FilterChips({ filters, onRemove }: {
   if (filters.area)         chips.push({ key: "area",         label: filters.area });
   if (filters.type)         chips.push({ key: "type",         label: PROPERTY_TYPE_LABELS[filters.type] ?? filters.type });
   if (filters.listing_type && filters.listing_type !== "sale")
-    chips.push({ key: "listing_type", label: filters.listing_type === "rent" ? "For Rent" : "Seasonal Rent" });
+    chips.push({ key: "listing_type", label: "For Rent" });
   if (filters.min_price)    chips.push({ key: "min_price",    label: `From €${Number(filters.min_price).toLocaleString()}` });
   if (filters.max_price)    chips.push({ key: "max_price",    label: `To €${Number(filters.max_price).toLocaleString()}` });
   if (filters.min_bedrooms) chips.push({ key: "min_bedrooms", label: `${filters.min_bedrooms}+ bed` });
@@ -372,11 +372,11 @@ export default function PropertiesPage() {
 
             {/* Listing type */}
             <div className="flex overflow-hidden rounded-sm border border-border h-9">
-              {["sale", "rent", "seasonal_rent"].map((lt) => (
+              {["sale", "rent"].map((lt) => (
                 <button key={lt} onClick={() => updateBasic("listing_type", lt)}
                   className={`px-3.5 text-[11px] font-medium font-body tracking-wide transition-colors ${filters.listing_type === lt ? activeClass : inactiveClass}`}
                 >
-                  {lt === "sale" ? "Sale" : lt === "rent" ? "Rent" : "Seasonal"}
+                  {lt === "sale" ? "Sale" : "Rent"}
                 </button>
               ))}
             </div>

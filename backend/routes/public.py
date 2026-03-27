@@ -236,7 +236,7 @@ async def list_properties(
     area:            Optional[str]   = Query(None),
     # Property classification
     type:            Optional[str]   = Query(None, description="property_type enum"),
-    listing_type:    Optional[str]   = Query(None, description="sale | rent | seasonal_rent"),
+    listing_type:    Optional[str]   = Query(None, description="sale | rent"),
     # Price range
     min_price:       Optional[float] = Query(None),
     max_price:       Optional[float] = Query(None),

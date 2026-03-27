@@ -6,7 +6,7 @@ import { getListing, createListing, updateListing } from "@/lib/admin-api";
 
 // Enum options (must match Supabase enums)
 const PROPERTY_TYPES = ["apartment","penthouse","villa","townhouse","estate","farmhouse","quinta","land","new_development_unit"];
-const LISTING_TYPES = ["sale", "rent", "seasonal_rent"];
+const LISTING_TYPES = ["sale", "rent"];
 const STATUS_OPTIONS = ["draft", "available", "reserved", "sold", "rented", "off_market"];
 const INTERNAL_STATUS = ["draft", "ready_for_review", "live", "on_hold", "off_market"];
 const CONDITIONS = ["new", "excellent", "renovated", "good", "to_refurbish"];

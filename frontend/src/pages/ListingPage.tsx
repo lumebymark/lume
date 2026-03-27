@@ -55,7 +55,6 @@ function capitalize(s: string): string {
 const LISTING_TYPE_LABELS: Record<string, string> = {
   sale: "For Sale",
   rent: "For Rent",
-  seasonal_rent: "Seasonal Rent",
 };
 
 const CONDITION_LABELS: Record<string, string> = {
