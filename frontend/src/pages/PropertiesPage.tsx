@@ -364,20 +364,16 @@ export default function PropertiesPage() {
               ))}
             </div>
 
-            {regionOptions.length > 0 && (
-              <div className="flex items-center gap-1.5 min-w-[140px]">
-                <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                <SelectDropdown value={filters.region} options={regionOptions} onChange={(v) => updateBasic("region", v)} placeholder="Region" />
-              </div>
-            )}
+            <div className="flex items-center gap-1.5 min-w-[140px]">
+              <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <SelectDropdown value={filters.region} options={regionOptions} onChange={(v) => updateBasic("region", v)} placeholder="Region" />
+            </div>
 
-            {cityOptions.length > 0 && (
-              <div className="min-w-[130px]">
-                <SelectDropdown value={filters.city} options={cityOptions} onChange={(v) => updateBasic("city", v)} placeholder="City" />
-              </div>
-            )}
+            <div className="min-w-[130px]">
+              <SelectDropdown value={filters.city} options={cityOptions} onChange={(v) => updateBasic("city", v)} placeholder="City" />
+            </div>
 
-            {filters.city && areaOptions.length > 1 && (
+            {(filters.city || areaOptions.length > 0) && (
               <div className="min-w-[130px]">
                 <SelectDropdown value={filters.area} options={areaOptions} onChange={(v) => updateBasic("area", v)} placeholder="Area" />
               </div>
