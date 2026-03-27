@@ -134,3 +134,57 @@ export async function deleteContact(id: string) {
   if (!res.ok) throw new Error("Failed to delete contact");
   return res.json();
 }
+
+// ─── Services ───────────────────────────────────────────────────────────────
+
+export interface Service {
+  id: string;
+  title: string;
+  slug: string;
+  category: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getServices(): Promise<{ services: Service[] }> {
+  const res = await adminFetch("/services");
+  if (!res.ok) throw new Error("Failed to fetch services");
+  return res.json();
+}
+
+export async function createService(data: {
+  title: string;
+  category: string;
+  sort_order?: number;
+  is_active?: boolean;
+}) {
+  const res = await adminFetch("/services", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as any).detail || "Failed to create service");
+  }
+  return res.json();
+}
+
+export async function updateService(id: string, data: Partial<Service>) {
+  const res = await adminFetch(`/services/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as any).detail || "Failed to update service");
+  }
+  return res.json();
+}
+
+export async function deleteService(id: string) {
+  const res = await adminFetch(`/services/${id}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete service");
+  return res.json();
+}

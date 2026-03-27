@@ -323,6 +323,15 @@ async def list_properties(
     except Exception as e:
         return {"properties": [], "total": 0, "error": str(e)}
 
+@router.get("/services")
+async def list_services_public():
+    """List all active services, grouped by category."""
+    try:
+        from database import get_all_services
+        return {"services": get_all_services()}
+    except Exception as e:
+        return {"services": [], "error": str(e)}
+
 @router.get("/locations")
 async def list_locations():
     """List all available locations."""

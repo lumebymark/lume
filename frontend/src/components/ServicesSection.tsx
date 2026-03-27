@@ -1,30 +1,60 @@
+// frontend/src/components/ServicesSection.tsx
+import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Scale, Heart, Home, TrendingUp } from "lucide-react";
+import { Scale, Heart, Home, TrendingUp, LucideIcon } from "lucide-react";
 
-const categories = [
-  {
-    icon: Scale,
-    title: "Administrative",
-    items: ["Legal counsel & lawyers", "Tax advisory (NHR)", "Bank account opening", "Visa & residency permits", "NIF & documentation"],
-  },
-  {
-    icon: Heart,
-    title: "Healthcare & Family",
-    items: ["Private healthcare enrollment", "International schools", "Family relocation support", "Pet relocation", "Language services"],
-  },
-  {
-    icon: Home,
-    title: "Home",
-    items: ["Interior design", "Furniture sourcing", "Home automation", "Garden & landscape", "Property management"],
-  },
-  {
-    icon: TrendingUp,
-    title: "Investment Advisory",
-    items: ["Market analysis", "Portfolio strategy", "Golden Visa guidance", "Rental yield optimization", "Asset management"],
-  },
-];
+// ─── Category config ──────────────────────────────────────────────────────────
+const CATEGORY_META: Record<
+  string,
+  { label: string; icon: LucideIcon; order: number }
+> = {
+  administrative: { label: "Administrative",       icon: Scale,       order: 0 },
+  healthcare:     { label: "Healthcare & Family",  icon: Heart,       order: 1 },
+  home:           { label: "Home",                 icon: Home,        order: 2 },
+  investment:     { label: "Investment Advisory",  icon: TrendingUp,  order: 3 },
+};
+
+interface Service {
+  id: string;
+  title: string;
+  category: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+interface ServicesResponse {
+  services: Service[];
+}
+
+// ─── Fetch from public API (no auth needed) ───────────────────────────────────
+async function fetchPublicServices(): Promise<ServicesResponse> {
+  const res = await fetch("/api/services");
+  if (!res.ok) throw new Error("Failed to load services");
+  return res.json();
+}
 
 const ServicesSection = () => {
+  const { data } = useQuery({
+    queryKey: ["public-services"],
+    queryFn: fetchPublicServices,
+    // Don't block the page if this fails — we fall back to empty lists
+    retry: 1,
+  });
+
+  const services = data?.services ?? [];
+
+  // Group and sort by category
+  const categories = Object.entries(CATEGORY_META)
+    .sort(([, a], [, b]) => a.order - b.order)
+    .map(([key, meta]) => ({
+      key,
+      ...meta,
+      items: services
+        .filter((s) => s.category === key)
+        .sort((a, b) => a.sort_order - b.sort_order)
+        .map((s) => s.title),
+    }));
+
   return (
     <section id="services" className="section-padding bg-card">
       <div className="max-w-7xl mx-auto">
@@ -34,7 +64,9 @@ const ServicesSection = () => {
           viewport={{ once: true }}
           className="text-center mb-20"
         >
-          <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">Exclusive Services</p>
+          <p className="text-xs tracking-[0.3em] uppercase text-primary mb-4">
+            Exclusive Services
+          </p>
           <h2 className="font-display text-3xl md:text-5xl font-light text-foreground">
             Everything You Need, Curated
           </h2>
@@ -43,7 +75,7 @@ const ServicesSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {categories.map((cat, i) => (
             <motion.div
-              key={cat.title}
+              key={cat.key}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -51,7 +83,9 @@ const ServicesSection = () => {
               className="group"
             >
               <cat.icon className="w-6 h-6 text-primary mb-5" strokeWidth={1.5} />
-              <h3 className="font-display text-xl font-light text-foreground mb-4">{cat.title}</h3>
+              <h3 className="font-display text-xl font-light text-foreground mb-4">
+                {cat.label}
+              </h3>
               <div className="w-8 h-px bg-primary/40 mb-5 group-hover:w-12 transition-all duration-500" />
               <ul className="space-y-2.5">
                 {cat.items.map((item) => (
