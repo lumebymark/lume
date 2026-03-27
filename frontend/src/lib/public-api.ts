@@ -216,7 +216,10 @@ export async function fetchPropertyFacets(): Promise<PropertyFacets | null> {
   try {
     const res = await fetch("/api/properties/facets");
     if (!res.ok) return null;
-    return res.json();
+    const data = await res.json();
+    // If backend returned an error body, treat as null
+    if (data?.error || !data?.cities_by_region) return null;
+    return data as PropertyFacets;
   } catch {
     return null;
   }

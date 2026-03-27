@@ -438,7 +438,7 @@ export default function PropertiesPage() {
   const regionOptions = (facets?.regions ?? []).map(r => ({ value: r, label: r }));
 
   const cityOptions = facets
-    ? (filters.region ? facets.cities_by_region[filters.region] ?? [] : Object.values(facets.cities_by_region).flat())
+  ? (filters.region ? (facets.cities_by_region ?? {})[filters.region] ?? [] : Object.values(facets.cities_by_region ?? {}).flat())
         .filter((v, i, a) => a.indexOf(v) === i)
         .sort()
         .map(c => ({ value: c, label: c }))
