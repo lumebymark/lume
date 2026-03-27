@@ -13,26 +13,26 @@ import {
   fetchListings, fetchPropertyFacets,
   type ListingsQuery, type PropertyFacets, type Listing,
 } from "@/lib/public-api";
-
+ 
 const PAGE_SIZE = 24;
-
+ 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {
   apartment: "Apartment", penthouse: "Penthouse", villa: "Villa",
   townhouse: "Townhouse", estate: "Estate", farmhouse: "Farmhouse",
   quinta: "Quinta", land: "Land", new_development_unit: "New Development",
 };
-
+ 
 const CONDITION_LABELS: Record<string, string> = {
   new: "New", excellent: "Excellent", renovated: "Renovated",
   good: "Good", to_refurbish: "To Refurbish",
 };
-
+ 
 const VIEW_LABELS: Record<string, string> = {
   sea: "Sea", ocean: "Ocean", river: "River", golf: "Golf",
   city: "City", countryside: "Countryside", mountain: "Mountain",
   garden: "Garden", marina: "Marina", panoramic: "Panoramic",
 };
-
+ 
 const FEATURE_OPTIONS: { key: string; label: string }[] = [
   { key: "pool",             label: "Pool" },
   { key: "heated_pool",      label: "Heated Pool" },
@@ -52,14 +52,14 @@ const FEATURE_OPTIONS: { key: string; label: string }[] = [
   { key: "concierge",        label: "Concierge" },
   { key: "furnished",        label: "Furnished" },
 ];
-
+ 
 const SORT_OPTIONS = [
   { value: "featured",   label: "Featured" },
   { value: "newest",     label: "Newest" },
   { value: "price_asc",  label: "Price: Low to High" },
   { value: "price_desc", label: "Price: High to Low" },
 ];
-
+ 
 interface Filters {
   region: string; city: string; area: string;
   type: string; listing_type: string;
@@ -72,7 +72,7 @@ interface Filters {
   featured_only: boolean;
   sort_by: string;
 }
-
+ 
 const DEFAULT_FILTERS: Filters = {
   region: "", city: "", area: "",
   type: "", listing_type: "sale",
@@ -85,7 +85,7 @@ const DEFAULT_FILTERS: Filters = {
   featured_only: false,
   sort_by: "featured",
 };
-
+ 
 function filtersToSearchParams(f: Filters): URLSearchParams {
   const p = new URLSearchParams();
   const set = (k: string, v: string) => { if (v && v !== DEFAULT_FILTERS[k as keyof Filters]) p.set(k, v); };
@@ -103,7 +103,7 @@ function filtersToSearchParams(f: Filters): URLSearchParams {
   if (f.sort_by !== "featured") p.set("sort_by", f.sort_by);
   return p;
 }
-
+ 
 function searchParamsToFilters(p: URLSearchParams): Filters {
   return {
     region:        p.get("region")        ?? "",
@@ -126,7 +126,7 @@ function searchParamsToFilters(p: URLSearchParams): Filters {
     sort_by:  p.get("sort_by") ?? "featured",
   };
 }
-
+ 
 function filtersToQuery(f: Filters, offset: number): ListingsQuery {
   return {
     region:        f.region     || undefined,
@@ -151,7 +151,7 @@ function filtersToQuery(f: Filters, offset: number): ListingsQuery {
     offset,
   };
 }
-
+ 
 function countActiveFilters(f: Filters): number {
   let n = 0;
   if (f.region)        n++;
@@ -172,11 +172,9 @@ function countActiveFilters(f: Filters): number {
   if (f.featured_only) n++;
   return n;
 }
-
+ 
 // ─── Page-local sub-components ────────────────────────────────────────────────
-// RangeInputs and FilterChips are tightly coupled to the Filters type so they
-// live here rather than in src/components/ui/.
-
+ 
 function RangeInputs({ label, minKey, maxKey, prefix, suffix, filters, onChange }: {
   label: string; minKey: keyof Filters; maxKey: keyof Filters;
   prefix?: string; suffix?: string;
@@ -184,7 +182,7 @@ function RangeInputs({ label, minKey, maxKey, prefix, suffix, filters, onChange 
 }) {
   const inputClass = (withPrefix: boolean) =>
     `w-full rounded border border-border bg-background py-2 text-sm text-foreground font-body outline-none transition placeholder:text-muted-foreground/40 focus:border-foreground/30 ${withPrefix ? "pl-7 pr-3" : "px-3"}`;
-
+ 
   return (
     <div>
       <p className="mb-2 text-xs uppercase tracking-widest text-muted-foreground font-body">{label}</p>
@@ -205,7 +203,7 @@ function RangeInputs({ label, minKey, maxKey, prefix, suffix, filters, onChange 
     </div>
   );
 }
-
+ 
 function FilterChips({ filters, onRemove }: {
   filters: Filters; onRemove: (k: string, subKey?: string) => void;
 }) {
@@ -216,13 +214,13 @@ function FilterChips({ filters, onRemove }: {
   if (filters.type)         chips.push({ key: "type",         label: PROPERTY_TYPE_LABELS[filters.type] ?? filters.type });
   if (filters.listing_type && filters.listing_type !== "sale")
     chips.push({ key: "listing_type", label: filters.listing_type === "rent" ? "For Rent" : "Seasonal Rent" });
-  if (filters.min_price)    chips.push({ key: "min_price",    label: `From EUR${Number(filters.min_price).toLocaleString()}` });
-  if (filters.max_price)    chips.push({ key: "max_price",    label: `To EUR${Number(filters.max_price).toLocaleString()}` });
+  if (filters.min_price)    chips.push({ key: "min_price",    label: `From €${Number(filters.min_price).toLocaleString()}` });
+  if (filters.max_price)    chips.push({ key: "max_price",    label: `To €${Number(filters.max_price).toLocaleString()}` });
   if (filters.min_bedrooms) chips.push({ key: "min_bedrooms", label: `${filters.min_bedrooms}+ bed` });
   if (filters.max_bedrooms) chips.push({ key: "max_bedrooms", label: `max ${filters.max_bedrooms} bed` });
   if (filters.min_bathrooms) chips.push({ key: "min_bathrooms", label: `${filters.min_bathrooms}+ bath` });
-  if (filters.min_area)     chips.push({ key: "min_area",     label: `From ${filters.min_area} m2` });
-  if (filters.max_area)     chips.push({ key: "max_area",     label: `To ${filters.max_area} m2` });
+  if (filters.min_area)     chips.push({ key: "min_area",     label: `From ${filters.min_area} m²` });
+  if (filters.max_area)     chips.push({ key: "max_area",     label: `To ${filters.max_area} m²` });
   if (filters.condition)    chips.push({ key: "condition",    label: CONDITION_LABELS[filters.condition] ?? filters.condition });
   filters.views.forEach((v)    => chips.push({ key: "views",    subKey: v, label: VIEW_LABELS[v]    ?? v }));
   filters.features.forEach((f) => chips.push({ key: "features", subKey: f, label: FEATURE_OPTIONS.find(o => o.key === f)?.label ?? f }));
@@ -241,9 +239,9 @@ function FilterChips({ filters, onRemove }: {
     </div>
   );
 }
-
+ 
 // ─── Main Page ────────────────────────────────────────────────────────────────
-
+ 
 export default function PropertiesPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<Filters>(() => searchParamsToFilters(searchParams));
@@ -252,56 +250,57 @@ export default function PropertiesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
-
+ 
   useEffect(() => {
     const f = searchParamsToFilters(searchParams);
     setFilters(f); setDraftFilters(f); setPage(0);
   }, [searchParams]);
-
+ 
   const { data: facets } = useQuery<PropertyFacets | null>({
     queryKey: ["property-facets"],
     queryFn: fetchPropertyFacets,
     staleTime: 5 * 60 * 1000,
   });
-
+ 
   const { data, isLoading } = useQuery({
     queryKey: ["listings", filters, page],
     queryFn: () => fetchListings(filtersToQuery(filters, page * PAGE_SIZE)),
     placeholderData: keepPreviousData,
   });
-
+ 
   const properties = data?.properties ?? [];
   const total      = data?.total ?? 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
-
+ 
   const applyFilters = useCallback((f: Filters) => {
     setSearchParams(filtersToSearchParams(f));
     setPage(0); setDrawerOpen(false);
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [setSearchParams]);
-
+ 
+  // Region and City are independent — picking a region does NOT clear city
   const updateBasic = useCallback((key: keyof Filters, value: string | string[] | boolean) => {
     const next = { ...filters, [key]: value };
-    if (key === "region") { next.city = ""; next.area = ""; }
+    if (key === "region") { next.area = ""; }
     if (key === "city")   { next.area = ""; }
     applyFilters(next);
   }, [filters, applyFilters]);
-
+ 
   const updateDraft = useCallback((key: keyof Filters, value: string | string[] | boolean) => {
     setDraftFilters(prev => {
       const next = { ...prev, [key]: value };
-      if (key === "region") { next.city = ""; next.area = ""; }
+      if (key === "region") { next.area = ""; }
       if (key === "city")   { next.area = ""; }
       return next;
     });
   }, []);
-
+ 
   const toggleArrayItem = (key: "views" | "features", item: string, inDraft: boolean) => {
     const current = inDraft ? draftFilters[key] : filters[key];
     const next = current.includes(item) ? current.filter(v => v !== item) : [...current, item];
     inDraft ? updateDraft(key, next) : updateBasic(key, next);
   };
-
+ 
   const removeChip = (key: string, subKey?: string) => {
     const f = { ...filters };
     if (key === "views" || key === "features") {
@@ -311,26 +310,42 @@ export default function PropertiesPage() {
     }
     applyFilters(f);
   };
-
+ 
   const resetAll = () => { applyFilters({ ...DEFAULT_FILTERS }); setDraftFilters({ ...DEFAULT_FILTERS }); };
-
+ 
+  // ── Dropdown option lists ──────────────────────────────────────────────────
+  // Region: all regions alphabetically
   const regionOptions = (facets?.regions ?? []).map(r => ({ value: r, label: r }));
-  const cityOptions = facets
-    ? (filters.region ? (facets.cities_by_region ?? {})[filters.region] ?? [] : Object.values(facets.cities_by_region ?? {}).flat())
-        .filter((v, i, a) => a.indexOf(v) === i).sort().map(c => ({ value: c, label: c }))
+ 
+  // City: always show ALL cities (independent of region selection)
+  const cityOptions = (facets?.all_cities ?? []).map(c => ({ value: c, label: c }));
+ 
+  // Area: show when city OR region is selected, only if >1 area exists
+  //   - city selected  → areas for that city
+  //   - region only    → areas for the whole region
+  //   - neither        → hidden
+  //   - only 1 area    → hidden (adds no value)
+  const areaOptionsList = facets
+    ? (filters.city
+        ? facets.areas_by_city[filters.city] ?? []
+        : filters.region
+          ? facets.areas_by_region[filters.region] ?? []
+          : []
+      )
     : [];
-  const areaOptions = facets && filters.city
-    ? (facets.areas_by_city[filters.city] ?? []).map(a => ({ value: a, label: a }))
+  const areaOptions = areaOptionsList.length > 1
+    ? areaOptionsList.map(a => ({ value: a, label: a }))
     : [];
+ 
   const activeFilterCount = countActiveFilters(filters);
-
+ 
   const activeClass = "border-foreground bg-foreground text-background";
   const inactiveClass = "border-border bg-background text-muted-foreground hover:bg-muted";
-
+ 
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Navbar />
-
+ 
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border pb-10 pt-32"
         style={{ background: "linear-gradient(180deg, hsl(var(--sand-light)) 0%, hsl(var(--background)) 100%)" }}
@@ -350,13 +365,13 @@ export default function PropertiesPage() {
           </div>
         </div>
       </section>
-
+ 
       {/* Filter Bar */}
       <section className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur-md shadow-sm">
         <div className="mx-auto max-w-7xl px-6 md:px-12 py-3">
           <div className="flex flex-wrap items-end gap-3">
-
-            {/* Listing type — h-9 to match dropdowns */}
+ 
+            {/* Listing type */}
             <div className="flex overflow-hidden rounded-sm border border-border h-9">
               {["sale", "rent", "seasonal_rent"].map((lt) => (
                 <button key={lt} onClick={() => updateBasic("listing_type", lt)}
@@ -366,26 +381,30 @@ export default function PropertiesPage() {
                 </button>
               ))}
             </div>
-
+ 
             <span className="hidden sm:block h-6 w-px bg-border self-center" />
-
+ 
+            {/* Region */}
             <div className="flex items-center gap-1.5 min-w-[140px]">
               <MapPin className="h-3.5 w-3.5 text-primary flex-shrink-0" />
               <SelectDropdown value={filters.region} options={regionOptions} onChange={(v) => updateBasic("region", v)} placeholder="Region" />
             </div>
-
+ 
+            {/* City — always visible, independent of region */}
             <div className="min-w-[120px]">
               <SelectDropdown value={filters.city} options={cityOptions} onChange={(v) => updateBasic("city", v)} placeholder="City" />
             </div>
-
-            {(filters.city || areaOptions.length > 0) && (
+ 
+            {/* Area — only when region or city is set AND >1 area exists */}
+            {areaOptions.length > 0 && (
               <div className="min-w-[120px]">
                 <SelectDropdown value={filters.area} options={areaOptions} onChange={(v) => updateBasic("area", v)} placeholder="Area" />
               </div>
             )}
-
+ 
             <span className="hidden sm:block h-6 w-px bg-border self-center" />
-
+ 
+            {/* Type */}
             <div className="min-w-[120px]">
               <SelectDropdown
                 value={filters.type}
@@ -394,8 +413,8 @@ export default function PropertiesPage() {
                 placeholder="Type"
               />
             </div>
-
-            {/* Bedrooms — uses shared ToggleGroup, inline mode */}
+ 
+            {/* Bedrooms */}
             <ToggleGroup
               inline
               options={[1, 2, 3, 4, 5]}
@@ -403,10 +422,10 @@ export default function PropertiesPage() {
               onChange={(v) => updateBasic("min_bedrooms", v)}
               formatOption={(v) => v === "5" ? "5+" : v}
             />
-
+ 
             <span className="hidden lg:block h-6 w-px bg-border self-center" />
-
-            {/* Price — h-9 inputs to match */}
+ 
+            {/* Price */}
             <div className="flex items-end gap-1.5">
               <div className="relative">
                 <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground/50">€</span>
@@ -424,7 +443,8 @@ export default function PropertiesPage() {
                 />
               </div>
             </div>
-
+ 
+            {/* Sort + Filters button + Clear */}
             <div className="ml-auto flex items-end gap-2">
               <SelectDropdown value={filters.sort_by} options={SORT_OPTIONS} onChange={(v) => updateBasic("sort_by", v || "featured")} placeholder="Sort" />
               <button onClick={() => { setDraftFilters(filters); setDrawerOpen(true); }}
@@ -447,7 +467,7 @@ export default function PropertiesPage() {
           </div>
         </div>
       </section>
-
+ 
       {/* Results */}
       <main className="mx-auto w-full max-w-7xl flex-1 px-6 md:px-12 py-10" ref={resultsRef}>
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
@@ -461,7 +481,7 @@ export default function PropertiesPage() {
             </button>
           </div>
         </div>
-
+ 
         {isLoading && (
           <div className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" : "flex flex-col gap-4"}>
             {Array.from({ length: 6 }).map((_, i) => (
@@ -476,7 +496,7 @@ export default function PropertiesPage() {
             ))}
           </div>
         )}
-
+ 
         {!isLoading && properties.length > 0 && (
           <motion.div key={`${page}-${viewMode}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className={viewMode === "grid" ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" : "flex flex-col gap-4"}
@@ -486,7 +506,7 @@ export default function PropertiesPage() {
             ))}
           </motion.div>
         )}
-
+ 
         {!isLoading && properties.length === 0 && (
           <div className="flex flex-col items-center justify-center py-32 text-center">
             <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-muted">
@@ -501,7 +521,7 @@ export default function PropertiesPage() {
             </button>
           </div>
         )}
-
+ 
         {totalPages > 1 && (
           <div className="mt-12 flex items-center justify-center gap-2">
             <button onClick={() => { setPage(p => Math.max(0, p - 1)); resultsRef.current?.scrollIntoView({ behavior: "smooth" }); }}
@@ -521,9 +541,9 @@ export default function PropertiesPage() {
           </div>
         )}
       </main>
-
+ 
       <Footer />
-
+ 
       {/* Filters Drawer */}
       <AnimatePresence>
         {drawerOpen && (
@@ -547,35 +567,37 @@ export default function PropertiesPage() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-
+ 
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
-
+ 
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Location</h3>
                   <SelectDropdown label="Region" value={draftFilters.region}
                     options={(facets?.regions ?? []).map(r => ({ value: r, label: r }))}
                     onChange={(v) => updateDraft("region", v)} placeholder="Any region"
                   />
-                  {(draftFilters.region
-                    ? facets?.cities_by_region[draftFilters.region] ?? []
-                    : Object.values(facets?.cities_by_region ?? {}).flat().filter((v, i, a) => a.indexOf(v) === i).sort()
-                  ).length > 0 && (
-                    <SelectDropdown label="City" value={draftFilters.city}
-                      options={(draftFilters.region
-                        ? facets?.cities_by_region[draftFilters.region] ?? []
-                        : Object.values(facets?.cities_by_region ?? {}).flat().filter((v, i, a) => a.indexOf(v) === i).sort()
-                      ).map(c => ({ value: c, label: c }))}
-                      onChange={(v) => updateDraft("city", v)} placeholder="Any city"
-                    />
-                  )}
-                  {draftFilters.city && (facets?.areas_by_city[draftFilters.city] ?? []).length > 0 && (
-                    <SelectDropdown label="Area / Neighbourhood" value={draftFilters.area}
-                      options={(facets?.areas_by_city[draftFilters.city] ?? []).map(a => ({ value: a, label: a }))}
-                      onChange={(v) => updateDraft("area", v)} placeholder="Any area"
-                    />
-                  )}
+                  <SelectDropdown label="City" value={draftFilters.city}
+                    options={(facets?.all_cities ?? []).map(c => ({ value: c, label: c }))}
+                    onChange={(v) => updateDraft("city", v)} placeholder="Any city"
+                  />
+                  {(() => {
+                    const drawerAreaList = facets
+                      ? (draftFilters.city
+                          ? facets.areas_by_city[draftFilters.city] ?? []
+                          : draftFilters.region
+                            ? facets.areas_by_region[draftFilters.region] ?? []
+                            : []
+                        )
+                      : [];
+                    return drawerAreaList.length > 1 ? (
+                      <SelectDropdown label="Area / Neighbourhood" value={draftFilters.area}
+                        options={drawerAreaList.map(a => ({ value: a, label: a }))}
+                        onChange={(v) => updateDraft("area", v)} placeholder="Any area"
+                      />
+                    ) : null;
+                  })()}
                 </div>
-
+ 
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Property</h3>
                   <SelectDropdown label="Type" value={draftFilters.type}
@@ -587,7 +609,7 @@ export default function PropertiesPage() {
                     onChange={(v) => updateDraft("condition", v)} placeholder="Any condition"
                   />
                 </div>
-
+ 
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Price</h3>
                   <RangeInputs
@@ -595,7 +617,7 @@ export default function PropertiesPage() {
                     minKey="min_price" maxKey="max_price" prefix="€" filters={draftFilters} onChange={updateDraft}
                   />
                 </div>
-
+ 
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Rooms</h3>
                   <ToggleGroup label="Bedrooms (min)"
@@ -607,7 +629,7 @@ export default function PropertiesPage() {
                     value={draftFilters.min_bathrooms} onChange={(v) => updateDraft("min_bathrooms", v)}
                   />
                 </div>
-
+ 
                 <div className="space-y-4">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Interior Area</h3>
                   <RangeInputs
@@ -615,7 +637,7 @@ export default function PropertiesPage() {
                     minKey="min_area" maxKey="max_area" suffix="m²" filters={draftFilters} onChange={updateDraft}
                   />
                 </div>
-
+ 
                 {(facets?.views ?? []).length > 0 && (
                   <div className="space-y-3">
                     <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Views</h3>
@@ -633,7 +655,7 @@ export default function PropertiesPage() {
                     </div>
                   </div>
                 )}
-
+ 
                 <div className="space-y-3">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Features</h3>
                   <div className="grid grid-cols-2 gap-y-2 gap-x-3">
@@ -652,7 +674,7 @@ export default function PropertiesPage() {
                     })}
                   </div>
                 </div>
-
+ 
                 <div className="space-y-3">
                   <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground font-body">Other</h3>
                   <label onClick={() => updateDraft("featured_only", !draftFilters.featured_only)}
@@ -664,9 +686,9 @@ export default function PropertiesPage() {
                     Featured listings only
                   </label>
                 </div>
-
+ 
               </div>
-
+ 
               <div className="border-t border-border px-6 py-4 flex gap-3">
                 <button onClick={() => setDraftFilters({ ...DEFAULT_FILTERS })}
                   className="flex-1 rounded border border-border py-2.5 text-sm font-body text-foreground transition hover:bg-muted">
