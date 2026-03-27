@@ -282,7 +282,7 @@ export default function PropertiesPage() {
 
   const updateBasic = useCallback((key: keyof Filters, value: string | string[] | boolean) => {
     const next = { ...filters, [key]: value };
-    if (key === "region") { next.city = ""; next.area = ""; }
+    if (key === "region") { next.area = ""; }
     if (key === "city")   { next.area = ""; }
     applyFilters(next);
   }, [filters, applyFilters]);
@@ -290,7 +290,7 @@ export default function PropertiesPage() {
   const updateDraft = useCallback((key: keyof Filters, value: string | string[] | boolean) => {
     setDraftFilters(prev => {
       const next = { ...prev, [key]: value };
-      if (key === "region") { next.city = ""; next.area = ""; }
+      if (key === "region") { next.area = ""; }
       if (key === "city")   { next.area = ""; }
       return next;
     });
@@ -315,12 +315,17 @@ export default function PropertiesPage() {
   const resetAll = () => { applyFilters({ ...DEFAULT_FILTERS }); setDraftFilters({ ...DEFAULT_FILTERS }); };
 
   const regionOptions = (facets?.regions ?? []).map(r => ({ value: r, label: r }));
-  const cityOptions = facets
-    ? (filters.region ? (facets.cities_by_region ?? {})[filters.region] ?? [] : Object.values(facets.cities_by_region ?? {}).flat())
-        .filter((v, i, a) => a.indexOf(v) === i).sort().map(c => ({ value: c, label: c }))
+  const cityOptions = (facets?.all_cities ?? []).map(c => ({ value: c, label: c }));
+  const areaOptionsList = facets
+    ? (filters.city
+        ? facets.areas_by_city[filters.city] ?? []
+        : filters.region
+          ? facets.areas_by_region[filters.region] ?? []
+          : []
+      )
     : [];
-  const areaOptions = facets && filters.city
-    ? (facets.areas_by_city[filters.city] ?? []).map(a => ({ value: a, label: a }))
+  const areaOptions = areaOptionsList.length > 1
+    ? areaOptionsList.map(a => ({ value: a, label: a }))
     : [];
   const activeFilterCount = countActiveFilters(filters);
 
@@ -377,7 +382,7 @@ export default function PropertiesPage() {
               </div>
             )}
 
-            {filters.city && areaOptions.length > 1 && (
+            {areaOptions.length > 0 && (
               <div className="min-w-[130px]">
                 <SelectDropdown value={filters.area} options={areaOptions} onChange={(v) => updateBasic("area", v)} placeholder="Area" />
               </div>
@@ -554,24 +559,26 @@ export default function PropertiesPage() {
                     options={(facets?.regions ?? []).map(r => ({ value: r, label: r }))}
                     onChange={(v) => updateDraft("region", v)} placeholder="Any region"
                   />
-                  {(draftFilters.region
-                    ? facets?.cities_by_region[draftFilters.region] ?? []
-                    : Object.values(facets?.cities_by_region ?? {}).flat().filter((v, i, a) => a.indexOf(v) === i).sort()
-                  ).length > 0 && (
-                    <SelectDropdown label="City" value={draftFilters.city}
-                      options={(draftFilters.region
-                        ? facets?.cities_by_region[draftFilters.region] ?? []
-                        : Object.values(facets?.cities_by_region ?? {}).flat().filter((v, i, a) => a.indexOf(v) === i).sort()
-                      ).map(c => ({ value: c, label: c }))}
-                      onChange={(v) => updateDraft("city", v)} placeholder="Any city"
-                    />
-                  )}
-                  {draftFilters.city && (facets?.areas_by_city[draftFilters.city] ?? []).length > 0 && (
-                    <SelectDropdown label="Area / Neighbourhood" value={draftFilters.area}
-                      options={(facets?.areas_by_city[draftFilters.city] ?? []).map(a => ({ value: a, label: a }))}
-                      onChange={(v) => updateDraft("area", v)} placeholder="Any area"
-                    />
-                  )}
+                  <SelectDropdown label="City" value={draftFilters.city}
+                    options={(facets?.all_cities ?? []).map(c => ({ value: c, label: c }))}
+                    onChange={(v) => updateDraft("city", v)} placeholder="Any city"
+                  />
+                  {(() => {
+                    const drawerAreaList = facets
+                      ? (draftFilters.city
+                          ? facets.areas_by_city[draftFilters.city] ?? []
+                          : draftFilters.region
+                            ? facets.areas_by_region[draftFilters.region] ?? []
+                            : []
+                        )
+                      : [];
+                    return drawerAreaList.length > 1 ? (
+                      <SelectDropdown label="Area / Neighbourhood" value={draftFilters.area}
+                        options={drawerAreaList.map(a => ({ value: a, label: a }))}
+                        onChange={(v) => updateDraft("area", v)} placeholder="Any area"
+                      />
+                    ) : null;
+                  })()}
                 </div>
 
                 <div className="space-y-4">
