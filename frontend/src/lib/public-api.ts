@@ -128,32 +128,96 @@ export async function fetchListingBySlug(slug: string): Promise<Listing | null> 
   return data as Listing;
 }
 
-export interface ListingsResponse {
-  properties: Listing[];
-  count: number;
-}
+// ─── Listings query (Properties page) ────────────────────────────────────────
 
 export interface ListingsQuery {
+  // Location cascade
+  region?: string;
   city?: string;
-  type?: string;
+  area?: string;
+  // Classification
+  type?: string;           // property_type
+  listing_type?: string;   // sale | rent | seasonal_rent
+  // Price
   min_price?: number;
   max_price?: number;
-  bedrooms?: number;
+  // Rooms
+  min_bedrooms?: number;
+  max_bedrooms?: number;
+  min_bathrooms?: number;
+  max_bathrooms?: number;
+  // Area m²
+  min_area?: number;
+  max_area?: number;
+  // Extras
+  condition?: string;
+  views?: string[];         // comma-joined before sending
+  features?: string[];      // comma-joined before sending
+  featured_only?: boolean;
+  // Sort & page
+  sort_by?: "featured" | "newest" | "price_asc" | "price_desc";
   limit?: number;
   offset?: number;
 }
 
+export interface ListingsResponse {
+  properties: Listing[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 export async function fetchListings(params: ListingsQuery = {}): Promise<ListingsResponse> {
-  const query = new URLSearchParams();
-  if (params.city) query.set("city", params.city);
-  if (params.type) query.set("type", params.type);
-  if (params.min_price) query.set("min_price", String(params.min_price));
-  if (params.max_price) query.set("max_price", String(params.max_price));
-  if (params.bedrooms) query.set("bedrooms", String(params.bedrooms));
-  if (params.limit) query.set("limit", String(params.limit));
-  if (params.offset) query.set("offset", String(params.offset));
-  const qs = query.toString();
+  const q = new URLSearchParams();
+  if (params.region)        q.set("region",         params.region);
+  if (params.city)          q.set("city",            params.city);
+  if (params.area)          q.set("area",            params.area);
+  if (params.type)          q.set("type",            params.type);
+  if (params.listing_type)  q.set("listing_type",    params.listing_type);
+  if (params.min_price  != null) q.set("min_price",  String(params.min_price));
+  if (params.max_price  != null) q.set("max_price",  String(params.max_price));
+  if (params.min_bedrooms  != null) q.set("min_bedrooms",  String(params.min_bedrooms));
+  if (params.max_bedrooms  != null) q.set("max_bedrooms",  String(params.max_bedrooms));
+  if (params.min_bathrooms != null) q.set("min_bathrooms", String(params.min_bathrooms));
+  if (params.max_bathrooms != null) q.set("max_bathrooms", String(params.max_bathrooms));
+  if (params.min_area != null) q.set("min_area", String(params.min_area));
+  if (params.max_area != null) q.set("max_area", String(params.max_area));
+  if (params.condition)     q.set("condition",       params.condition);
+  if (params.views?.length) q.set("views",           params.views.join(","));
+  if (params.features?.length) q.set("features",     params.features.join(","));
+  if (params.featured_only) q.set("featured_only",   "true");
+  if (params.sort_by)       q.set("sort_by",         params.sort_by);
+  if (params.limit  != null) q.set("limit",  String(params.limit));
+  if (params.offset != null) q.set("offset", String(params.offset));
+
+  const qs = q.toString();
   const res = await fetch(`/api/properties${qs ? `?${qs}` : ""}`);
-  if (!res.ok) return { properties: [], count: 0 };
+  if (!res.ok) return { properties: [], total: 0, limit: 24, offset: 0 };
   return res.json();
+}
+
+// ─── Facets — populate filter dropdowns + slider bounds ──────────────────────
+
+export interface PropertyFacets {
+  regions: string[];
+  cities_by_region: Record<string, string[]>;
+  areas_by_city: Record<string, string[]>;
+  property_types: string[];
+  listing_types: string[];
+  price_range: { min: number; max: number };
+  area_range: { min: number; max: number };
+  bedroom_counts: number[];
+  bathroom_counts: number[];
+  conditions: string[];
+  views: string[];
+}
+
+export async function fetchPropertyFacets(): Promise<PropertyFacets | null> {
+  try {
+    const res = await fetch("/api/properties/facets");
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
 }
