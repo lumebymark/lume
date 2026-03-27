@@ -1,3 +1,4 @@
+// frontend/src/components/QuestionnaireSection.tsx
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { setCookie, EMAIL_SUBMITTED_KEY } from "@/lib/cookies";
@@ -26,7 +27,8 @@ const questions = [
 ];
 
 interface QuestionnaireSectionProps {
-  onComplete: () => void;
+  // answers are passed back so the parent can use them to filter listings
+  onComplete: (answers: Record<string, string>) => void;
   isCompleted: boolean;
 }
 
@@ -54,8 +56,8 @@ const QuestionnaireSection = ({ onComplete, isCompleted }: QuestionnaireSectionP
     setIsSubmitting(true);
     setError("");
 
-    // Convert answers from {0: "Relocation", 1: "Ocean"} 
-    // to {"1": "Relocation", "2": "Ocean"} (1-indexed string keys for the backend)
+    // Convert answers from {0: "Relocation", 1: "Ocean"}
+    // to {"1": "Relocation", "2": "Ocean"} (1-indexed string keys for backend)
     const formattedAnswers: Record<string, string> = {};
     for (const [key, value] of Object.entries(answers)) {
       formattedAnswers[String(Number(key) + 1)] = value;
@@ -65,10 +67,7 @@ const QuestionnaireSection = ({ onComplete, isCompleted }: QuestionnaireSectionP
       const res = await fetch("/api/submit/questionnaire", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          answers: formattedAnswers,
-        }),
+        body: JSON.stringify({ email, answers: formattedAnswers }),
       });
 
       if (!res.ok) {
@@ -79,8 +78,8 @@ const QuestionnaireSection = ({ onComplete, isCompleted }: QuestionnaireSectionP
       // Set cookie so returning visitors skip the questionnaire (90 days)
       setCookie(EMAIL_SUBMITTED_KEY, "1", 90);
 
-      // Success — trigger the parent's completion handler
-      onComplete();
+      // Pass answers up so Index can filter listings accordingly
+      onComplete(formattedAnswers);
     } catch (err: any) {
       setError(err.message || "Something went wrong. Please try again.");
     } finally {

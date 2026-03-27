@@ -135,6 +135,7 @@ export interface ListingsQuery {
   region?: string;
   city?: string;
   area?: string;
+  lifestyle?: string;
   // Classification
   type?: string;           // property_type
   listing_type?: string;   // sale | rent
@@ -172,6 +173,7 @@ export async function fetchListings(params: ListingsQuery = {}): Promise<Listing
   if (params.region)        q.set("region",         params.region);
   if (params.city)          q.set("city",            params.city);
   if (params.area)          q.set("area",            params.area);
+  if (params.lifestyle)     q.set("lifestyle",        params.lifestyle); 
   if (params.type)          q.set("type",            params.type);
   if (params.listing_type)  q.set("listing_type",    params.listing_type);
   if (params.min_price  != null) q.set("min_price",  String(params.min_price));

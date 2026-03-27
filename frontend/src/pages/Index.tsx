@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+// frontend/src/pages/Index.tsx
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -12,18 +13,30 @@ import PrivateAccessSection from "@/components/PrivateAccessSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import { getCookie, EMAIL_SUBMITTED_KEY } from "@/lib/cookies";
+import type { QuestionnaireAnswers } from "@/lib/questionnaire-filter";
 
 const Index = () => {
-  // Check if the visitor already submitted their email (cookie exists)
-  const [unlocked, setUnlocked] = useState(() => {
-    return !!getCookie(EMAIL_SUBMITTED_KEY);
-  });
+  // Has the visitor already submitted their email? (cookie-based)
+  const [unlocked, setUnlocked] = useState(() => !!getCookie(EMAIL_SUBMITTED_KEY));
+
+  // Questionnaire answers — used to filter the listings shown below
+  // Null means: returning visitor who skipped the questionnaire (show unfiltered)
+  const [answers, setAnswers] = useState<QuestionnaireAnswers | null>(null);
+
+  const handleComplete = (submittedAnswers: QuestionnaireAnswers) => {
+    setAnswers(submittedAnswers);
+    setUnlocked(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <HeroSection />
-      <QuestionnaireSection onComplete={() => setUnlocked(true)} isCompleted={unlocked} />
+
+      <QuestionnaireSection
+        onComplete={handleComplete}
+        isCompleted={unlocked}
+      />
 
       <AnimatePresence>
         {unlocked && (
@@ -32,7 +45,8 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <ListingsSection />
+            {/* Pass answers — null for returning visitors means no filter applied */}
+            <ListingsSection answers={answers} />
             <ServicesSection />
             <CuratorSection />
             <ConciergeSection />
