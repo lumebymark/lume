@@ -6,17 +6,17 @@ const tracks = [
   {
     icon: TrendingUp,
     title: "Investment Homes",
-    description: "Properties selected for rental yield and capital appreciation. Professionally managed for maximum return.",
+    description: "Properties selected for rental yield and capital appreciation. Professionally sourced from an active development pipeline, with full asset management from acquisition through exit.",
   },
   {
     icon: Home,
     title: "Second Homes",
-    description: "Lifestyle properties for personal use, family retreats, and long-stay escapes in Portugal's most desirable addresses.",
+    description: "Lifestyle properties for personal use, family retreats, and long-stay escapes across Portugal's most desirable addresses — from Lisbon and Cascais to the Alentejo coast.",
   },
   {
     icon: Building2,
     title: "Strategic Investments",
-    description: "Urban regeneration projects, commercial assets, and development opportunities for the sophisticated investor.",
+    description: "Co-investment opportunities in new residential developments across three distinct market segments, targeting short investment cycles and above-market returns through innovative construction methods and sustainability-led design.",
   },
 ];
 
@@ -50,6 +50,15 @@ const InvestmentSection = () => {
 
       {/* Investment tracks */}
       <div className="section-padding bg-background">
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="max-w-3xl mx-auto text-center text-sm text-muted-foreground leading-relaxed mb-16"
+        >
+          Our investment advisory is delivered in partnership with OneMark Properties — a Portuguese real estate development platform founded by seasoned executives with decades of experience in premium residential development, strategic consulting, and infrastructure finance. Rooted in Lisbon and backed by established relationships with leading Portuguese banks, architects, and construction partners, OneMark brings institutional rigour to every opportunity.
+        </motion.p>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
           {tracks.map((track, i) => (
             <motion.div

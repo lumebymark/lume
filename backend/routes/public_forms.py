@@ -1,6 +1,6 @@
 # backend/routes/public_forms.py
 """
-Public form submission routes for LUME by Mark.
+Public form submission routes for LUME by OneMark.
 
 These are unauthenticated endpoints that allow visitors to submit
 their information via the questionnaire and Private Access form.

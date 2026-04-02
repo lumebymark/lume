@@ -1,6 +1,6 @@
 # backend/database.py
 """
-Supabase database client for LUME by Mark.
+Supabase database client for LUME by OneMark.
 
 All database queries used by seo.py, routes, and the CMS go through here.
 Thin wrapper around the Supabase Python client.
