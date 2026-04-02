@@ -104,7 +104,7 @@ const ListingsSection = ({ answers }: ListingsSectionProps) => {
           </h2>
           {/* Dynamic filter subtitle */}
           <p className="max-w-2xl mx-auto text-sm font-light text-muted-foreground/70">
-            This curated selection reflects the preferences you shared with us. Browse our full portfolio or reach out for a personally tailored presentation.
+            This selection reflects the preferences you shared with us. Browse our full portfolio or reach out for a personally tailored presentation.
           </p>
         </motion.div>
 
