@@ -1,5 +1,5 @@
 // frontend/src/lib/cookies.ts
-// Simple cookie utilities for LUME by Mark
+// Simple cookie utilities for LUME by OneMark
 
 /**
  * Set a cookie with optional expiry in days.
