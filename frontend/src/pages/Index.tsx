@@ -1,5 +1,6 @@
 // frontend/src/pages/Index.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -18,6 +19,15 @@ import type { QuestionnaireAnswers } from "@/lib/questionnaire-filter";
 const Index = () => {
   // Has the visitor already submitted their email? (cookie-based)
   const [unlocked, setUnlocked] = useState(() => !!getCookie(EMAIL_SUBMITTED_KEY));
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+    const timer = setTimeout(() => {
+      document.querySelector(location.hash)?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [location.hash]);
 
   // Questionnaire answers — used to filter the listings shown below
   // Null means: returning visitor who skipped the questionnaire (show unfiltered)
