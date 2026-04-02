@@ -17,7 +17,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-16 md:h-20">
         <a href="/" className="flex flex-col items-start leading-none">
           <span className="font-display text-2xl md:text-3xl font-light tracking-widest text-foreground">LUME</span>
-          <span className="font-body text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-muted-foreground font-medium">by OneMark</span>
+          <span className="font-body text-[8px] md:text-[9px] tracking-[0.2em] uppercase text-muted-foreground font-medium">by Mark</span>
         </a>
 
         {/* Desktop */}
