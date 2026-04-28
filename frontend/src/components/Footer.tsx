@@ -5,7 +5,7 @@ const Footer = () => {
         <img
           src="/logo_footer.png"
           alt="LUME by Mark"
-          className="h-[52px] w-auto"
+          className="h-[70px] w-auto"
         />
         <p className="text-[11px] tracking-wider text-warm-white/30">
           © 2026 LUME by Mark · Real Estate, Relocation & Investment · Portugal
