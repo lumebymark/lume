@@ -8,7 +8,6 @@ import { useT } from "@/lib/i18n";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
-  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const t = useT();
@@ -63,12 +62,20 @@ const Navbar = () => {
     setTimeout(() => scrollToHash(hash), 300);
   };
 
+  // Variants drive the slide animation. The parent <motion.a> declares hover state,
+  // and the child <motion.div> consumes it via the named variants. This is the
+  // canonical Framer Motion pattern (variants flow down to children automatically).
+  const slideVariants = {
+    rest:  { y: "0%" },
+    hover: { y: "-50%" }, // -50% of the inner element (which is 2x h-9), so it shifts up by exactly one h-9
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between h-16 md:h-28">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center h-16 md:h-28 gap-6">
 
         {/* Logo */}
-        <a href="/" className="flex items-center leading-none">
+        <a href="/" className="flex items-center leading-none flex-shrink-0">
           <img
             src="/logo.png"
             alt="LUME by Mark"
@@ -76,40 +83,44 @@ const Navbar = () => {
           />
         </a>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-10">
+        {/* Desktop nav — flex-1 absorbs remaining space; each item is flex-1 text-center
+            so all five share the row equally regardless of label length */}
+        <div className="hidden md:flex flex-1 items-center">
           {navItems.map((item) => (
-            <a
+            <motion.a
               key={item.href}
               href={item.href}
               onClick={(e) => handleNavClick(e, item.href)}
-              onMouseEnter={() => setHoveredHref(item.href)}
-              onMouseLeave={() => setHoveredHref(null)}
-              className="relative block overflow-hidden h-9 group"
-              style={{ minWidth: "max-content" }}
+              initial="rest"
+              whileHover="hover"
+              animate="rest"
+              className="relative block overflow-hidden h-9 group flex-1 text-center"
             >
               <motion.div
-                animate={{ y: hoveredHref === item.href ? "-100%" : "0%" }}
+                variants={slideVariants}
                 transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-col"
               >
-                <span className="flex items-center h-9 text-[11px] tracking-[0.22em] uppercase text-muted-foreground group-hover:text-foreground transition-colors duration-300">
+                <span className="flex items-center justify-center h-9 text-[11px] tracking-[0.22em] uppercase text-muted-foreground group-hover:text-foreground transition-colors duration-300 whitespace-nowrap">
                   {item.label}
                 </span>
-                <span className="flex items-center h-9 text-[11px] italic font-serif tracking-wide text-foreground whitespace-nowrap">
+                <span className="flex items-center justify-center h-9 text-[11px] italic font-serif tracking-wide text-foreground whitespace-nowrap">
                   {item.subtitle}
                 </span>
               </motion.div>
-            </a>
+            </motion.a>
           ))}
+        </div>
 
+        {/* Language switcher — its own slot on the right, separate from nav items */}
+        <div className="hidden md:block flex-shrink-0">
           <LanguageSwitcher />
         </div>
 
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-foreground"
+          className="md:hidden text-foreground ml-auto"
           aria-label="Toggle menu"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
