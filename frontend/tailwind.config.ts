@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate"; // ← replaces require() at the bottom
 
 export default {
   darkMode: ["class"],
@@ -16,6 +17,7 @@ export default {
       fontFamily: {
         display: ['"Cormorant Garamond"', 'serif'],
         body: ['Raleway', 'sans-serif'],
+        serif: ['Georgia', 'serif'], // ← added: enables font-serif in the navbar subtitle
       },
       colors: {
         border: "hsl(var(--border))",
@@ -131,5 +133,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate], // ← uses the ESM import instead of require()
 } satisfies Config;
