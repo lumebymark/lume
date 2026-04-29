@@ -138,7 +138,7 @@ const QuestionnaireSection = () => {
     <section id="questionnaire" className="min-h-screen flex items-center bg-card section-padding">
       <div className="max-w-3xl mx-auto w-full">
 
-        {/* Intro — hidden on the thanks screen so it has full focus */}
+        {/* Intro — hidden on the 'thanks' screen so it has full focus */}
         {step.kind !== "thanks" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
