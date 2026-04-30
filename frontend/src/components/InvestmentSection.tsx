@@ -54,10 +54,6 @@ const InvestmentSection = () => {
       aria-labelledby="investment-heading"
       style={{ backgroundColor: "#0f0f0f" }}
     >
-      <h2 id="investment-heading" className="sr-only">
-        Investment
-      </h2>
-
       <div
         className="mx-auto"
         style={{
@@ -68,21 +64,33 @@ const InvestmentSection = () => {
           paddingRight: "clamp(24px, 5vw, 56px)",
         }}
       >
-        {/* A. Eyebrow */}
-        <div className="flex flex-col items-center" style={{ marginBottom: "64px" }}>
-          <div style={{ width: "40px", height: "1px", backgroundColor: ACCENT }} />
+        {/* A. Eyebrow + Heading */}
+        <div className="flex flex-col items-center text-center" style={{ marginBottom: "64px" }}>
           <div
             className="font-body"
             style={{
-              marginTop: "16px",
               fontSize: "12px",
               letterSpacing: "3px",
               textTransform: "uppercase",
               color: ACCENT,
+              marginBottom: "16px",
             }}
           >
-            Investment
+            Quiet Opportunities
           </div>
+          <h2
+            id="investment-heading"
+            className="font-display text-white"
+            style={{
+              fontSize: "clamp(1.9rem, 4vw, 3rem)",
+              fontWeight: 300,
+              lineHeight: 1.25,
+              margin: 0,
+            }}
+          >
+            Investing in real estate in Portugal
+          </h2>
+          <div style={{ width: "40px", height: "1px", backgroundColor: ACCENT, marginTop: "24px" }} />
         </div>
 
         {/* B. Numbered sections */}
