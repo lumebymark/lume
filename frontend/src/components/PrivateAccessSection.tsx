@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useT } from "@/lib/i18n";
-import { WaveCrest } from "@/components/WaveTransition";
 
 const PrivateAccessSection = () => {
   const t = useT();
@@ -47,8 +46,6 @@ const PrivateAccessSection = () => {
 
   return (
     <section id="private-access" className="relative z-[32] section-padding bg-[#4e8ba1]">
-      {/* Wave crest scrolls with the section (compositor thread) — no rAF lag */}
-      <WaveCrest />
       <div className="max-w-3xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

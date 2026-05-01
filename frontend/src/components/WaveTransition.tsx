@@ -3,25 +3,27 @@
 // "Ocean wave covers the navbar" effect for the LUME homepage.
 //
 // As the PrivateAccessSection (id="private-access") rises toward the
-// fixed navbar, an ocean-blue wave climbs up and submerges it.
+// fixed navbar, an ocean-blue wave visibly climbs OVER the navbar.
 //
-// Architecture:
+// Architecture (mirrors wave_demo_2's stacking):
 //   <WaveProvider>          ← owns state, listens to scroll
-//     <Navbar />            ← reads useWave() to flip its colors
+//     <Navbar />            ← z-50, fades to transparent when submerged
 //     ...page content...
-//     <PrivateAccessSection /> ← must contain <WaveCrest /> at its top
-//     <WaveOverlay />       ← fixed teal fill anchored to section top
+//     <PrivateAccessSection /> ← z-32, owns its own teal bg
+//     <WaveOverlay />       ← z-30, teal fill anchored at section top
+//     <WaveCrest />         ← z-60, ABOVE the navbar so it visibly draws over it
 //   </WaveProvider>
 //
-// The wave CREST SVGs live inside PrivateAccessSection (via <WaveCrest />)
-// so they scroll on the compositor thread alongside the section —
-// eliminating the rAF lag that caused the black gap during fast scrolling.
+// Critically: WaveCrest renders at z-60 (above the z-50 navbar), so as the
+// wave climbs into the navbar zone the wavy crest is drawn on top of the
+// navbar — not hidden behind it. This is wave_demo_2's approach. (Our prior
+// wave_demo_1 mirror placed the crest below the navbar, which is why the
+// wave appeared to "slip under the bar" in practice.)
 //
-// The fill (WaveOverlay) is a fixed element that covers ONLY the visible
-// section area (from anchorY downward) — it does NOT extend up into the
-// navbar zone. That's intentional: leaving the area above the wave line
-// transparent is what makes the wavy crest visible passing through the
-// (transparent) navbar. Matches wave_demo_1.
+// The fill (WaveOverlay) is anchored at viewport y = anchorY (section top)
+// with height = viewportHeight - anchorY. It does NOT extend above anchorY,
+// so the area above the wave line stays transparent and the wavy edge
+// reads as a real water surface.
 
 import {
   createContext,
@@ -37,7 +39,11 @@ export const WAVE_HEIGHT  = 60;         // px — height of the wavy crest strip
 export const SEAM_OVERLAP = 2;          // px — crest extends this far into the section
 const FADE_START   = 600;              // px — section.top above this: wave invisible
 const FADE_END     = 80;               // px — section.top below this: wave fully opaque
-const SUBMERGE_AT  = 30;               // px — section.top ≤ this: navbar submerges (matches wave_demo_1)
+// Submerge trigger: when the wave's crest line is within ~30px of the viewport
+// top, flip the navbar to its submerged state (transparent bg, white text).
+// Matches wave_demo_2's `waveCrestY < 30` heuristic. anchorY ≤ 90 ⇒ crest top
+// (anchorY - 60) ≤ 30, i.e., wave has reached the upper edge of the navbar.
+const SUBMERGE_AT  = 90;
 // ───────────────────────────────────────────────────────────────────────────
 
 interface WaveCtx {
@@ -81,6 +87,11 @@ export const WaveProvider = ({
       const fillY      = anchorY;
       const fillHeight = Math.max(0, ch - anchorY);
 
+      // Crest's TOP edge in the viewport = section top minus the wave height.
+      // SEAM_OVERLAP nudges the crest down a hair so its solid teal bottom
+      // overlaps the section, hiding any sub-pixel seam.
+      const crestY = anchorY - WAVE_HEIGHT + SEAM_OVERLAP;
+
       // Wave opacity: fades in as section approaches, fully opaque near navbar.
       const fadeRange = FADE_START - FADE_END;
       const opacity = Math.max(
@@ -91,6 +102,7 @@ export const WaveProvider = ({
       const root = document.documentElement;
       root.style.setProperty("--lume-wave-fill-y",  `${fillY}px`);
       root.style.setProperty("--lume-wave-fill-h",  `${fillHeight}px`);
+      root.style.setProperty("--lume-wave-crest-y", `${crestY}px`);
       root.style.setProperty("--lume-wave-opacity",  String(opacity));
 
       const isSubmerged = S <= SUBMERGE_AT;
@@ -116,6 +128,7 @@ export const WaveProvider = ({
       const root = document.documentElement;
       root.style.removeProperty("--lume-wave-fill-y");
       root.style.removeProperty("--lume-wave-fill-h");
+      root.style.removeProperty("--lume-wave-crest-y");
       root.style.removeProperty("--lume-wave-opacity");
       document.body.classList.remove("lume-wave-frozen");
     };
@@ -129,24 +142,28 @@ export const WaveProvider = ({
 };
 
 /**
- * Drop this at the very top of PrivateAccessSection (inside the <section>).
- * Being part of the section means it scrolls on the compositor thread —
- * no rAF lag, no black gap during fast scrolling.
+ * Fixed, root-level wave crest. Renders at z-60 — ABOVE the navbar (z-50) —
+ * so as the wave climbs into the navbar zone the wavy edge visibly draws
+ * on top of the navbar, exactly like wave_demo_2.
+ *
+ * Position is driven by --lume-wave-crest-y (set by WaveProvider): the top
+ * edge of the crest sits at viewport y = anchorY - WAVE_HEIGHT + SEAM_OVERLAP,
+ * so the crest's solid teal bottom edge meets (and slightly overlaps) the
+ * section's top edge. Any rAF lag is harmless: the section's own teal bg
+ * (z-32) fills any gap below the lagging crest.
+ *
+ * Drop anywhere inside <WaveProvider>.
  */
 export const WaveCrest = () => (
   <div
     aria-hidden
-    className="pointer-events-none absolute inset-x-0 overflow-hidden"
+    className="pointer-events-none fixed inset-x-0 top-0 overflow-hidden"
     style={{
-      // Shift up so the crest sits above the section top.
-      // SEAM_OVERLAP lets the teal fill at the SVG bottom overlap the
-      // section by a couple pixels, hiding any sub-pixel seam.
-      top: `${-(WAVE_HEIGHT - SEAM_OVERLAP)}px`,
       height: `${WAVE_HEIGHT}px`,
+      transform: "translate3d(0, var(--lume-wave-crest-y, -100px), 0)",
       opacity: "var(--lume-wave-opacity, 0)",
-      // z-1 keeps it inside the section's stacking context (z-[32]),
-      // which already places it above the fill (z-30) in the root context.
-      zIndex: 1,
+      zIndex: 60,
+      willChange: "transform, opacity",
     }}
   >
     {/* Back layer — slower drift, slightly transparent for depth */}
