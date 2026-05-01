@@ -32,7 +32,7 @@ Admin (require_admin):
                                           Writes results into <field>_i18n JSONB.
 
     POST   /api/admin/services/:id/translate
-                                          Same for services (title, subtitle,
+                                          Same for services (title,
                                           description).
 """
 
@@ -67,7 +67,7 @@ _LOCALES = ("en", "pt_pt", "ru", "es")
 
 # Fields that can be auto-translated on each table
 _LISTING_TRANSLATABLE = ("title", "short_description", "full_description", "ai_summary")
-_SERVICE_TRANSLATABLE = ("title", "subtitle", "description")
+_SERVICE_TRANSLATABLE = ("title", "description")
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -387,7 +387,7 @@ async def translate_service_field(
     """
     Translate one text field of a service to all other locales via DeepL.
 
-    Translatable fields: title, subtitle, description.
+    Translatable fields: title, description.
     English lives in the base column; other locales in <field>_i18n JSONB.
     Returns the full updated service row.
     """

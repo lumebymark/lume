@@ -236,7 +236,6 @@ export async function fetchListings(
 export interface PublicService {
   id: string;
   title: string;    // locale-merged by backend
-  subtitle?: string | null;
   description?: string | null;
   category: string;
   icon?: string | null;
