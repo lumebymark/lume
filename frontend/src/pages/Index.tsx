@@ -14,7 +14,7 @@ import InvestmentSection from "@/components/InvestmentSection";
 import PrivateAccessSection from "@/components/PrivateAccessSection";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
-import { WaveProvider, WaveOverlay } from "@/components/WaveTransition";
+import { WaveProvider, WaveOverlay, WaveCrest } from "@/components/WaveTransition";
 
 const Index = () => {
   const location = useLocation();
@@ -42,8 +42,11 @@ const Index = () => {
         <Footer />
         <CookieConsent />
 
-        {/* Visual layer for the wave-takeover effect. Must be inside WaveProvider. */}
+        {/* Visual layers for the wave-takeover effect. Must be inside WaveProvider.
+            WaveOverlay (z-30) is the teal fill below the navbar.
+            WaveCrest    (z-60) sits ABOVE the navbar so it visibly draws over it. */}
         <WaveOverlay />
+        <WaveCrest />
       </div>
     </WaveProvider>
   );
