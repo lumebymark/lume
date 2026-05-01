@@ -184,8 +184,6 @@ export interface Service {
   id: string;
   title: string;
   title_i18n: I18nValues;
-  subtitle: string | null;
-  subtitle_i18n: I18nValues;
   description: string | null;
   description_i18n: I18nValues;
   slug: string;
@@ -206,8 +204,6 @@ export async function getServices(): Promise<{ services: Service[] }> {
 export async function createService(data: {
   title: string;
   title_i18n?: I18nValues;
-  subtitle?: string;
-  subtitle_i18n?: I18nValues;
   description?: string;
   description_i18n?: I18nValues;
   category: string;
@@ -245,7 +241,7 @@ export async function deleteService(id: string) {
 
 // ─── Service field translation (DeepL) ──────────────────────────────────────
 
-export type ServiceTranslatableField = "title" | "subtitle" | "description";
+export type ServiceTranslatableField = "title" | "description";
 
 /**
  * Translate a single field of a service to all other locales via DeepL.

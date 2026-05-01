@@ -52,8 +52,6 @@ const EMPTY_I18N: I18nValues = { pt_pt: "", ru: "", es: "" };
 const EMPTY_FORM = {
   title:            "",
   title_i18n:       { ...EMPTY_I18N } as I18nValues,
-  subtitle:         "",
-  subtitle_i18n:    { ...EMPTY_I18N } as I18nValues,
   description:      "",
   description_i18n: { ...EMPTY_I18N } as I18nValues,
   category:         "settling_in" as CategoryValue,
@@ -113,7 +111,7 @@ export default function AdminServices() {
 
   function openAdd() {
     setEditing(null);
-    setForm({ ...EMPTY_FORM, title_i18n: { ...EMPTY_I18N }, subtitle_i18n: { ...EMPTY_I18N }, description_i18n: { ...EMPTY_I18N } });
+    setForm({ ...EMPTY_FORM, title_i18n: { ...EMPTY_I18N }, description_i18n: { ...EMPTY_I18N } });
     setError("");
     setModal("add");
   }
@@ -123,8 +121,6 @@ export default function AdminServices() {
     setForm({
       title:            s.title ?? "",
       title_i18n:       (s.title_i18n as I18nValues) ?? { ...EMPTY_I18N },
-      subtitle:         s.subtitle ?? "",
-      subtitle_i18n:    (s.subtitle_i18n as I18nValues) ?? { ...EMPTY_I18N },
       description:      s.description ?? "",
       description_i18n: (s.description_i18n as I18nValues) ?? { ...EMPTY_I18N },
       category:         s.category as CategoryValue,
@@ -147,8 +143,6 @@ export default function AdminServices() {
     const payload = {
       title:            form.title,
       title_i18n:       form.title_i18n,
-      subtitle:         form.subtitle || null,
-      subtitle_i18n:    form.subtitle_i18n,
       description:      form.description || null,
       description_i18n: form.description_i18n,
       category:         form.category,
@@ -168,8 +162,6 @@ export default function AdminServices() {
       ...prev,
       title:            updatedService.title ?? prev.title,
       title_i18n:       (updatedService.title_i18n as I18nValues) ?? prev.title_i18n,
-      subtitle:         updatedService.subtitle ?? prev.subtitle,
-      subtitle_i18n:    (updatedService.subtitle_i18n as I18nValues) ?? prev.subtitle_i18n,
       description:      updatedService.description ?? prev.description,
       description_i18n: (updatedService.description_i18n as I18nValues) ?? prev.description_i18n,
     }));
@@ -321,17 +313,6 @@ export default function AdminServices() {
               onTranslated={onTranslated}
               required
               placeholder="e.g. Yacht Charters"
-            />
-
-            {/* Subtitle — multilingual */}
-            <LocalizedServiceField
-              label="Subtitle / tagline"
-              fieldName="subtitle"
-              form={form}
-              setForm={setForm}
-              serviceId={editing?.id}
-              onTranslated={onTranslated}
-              placeholder="Short tagline shown on service detail pages"
             />
 
             {/* Description — multilingual */}

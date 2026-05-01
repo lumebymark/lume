@@ -125,7 +125,7 @@ _LISTING_CARD_FIELDS = (
    )
 
 _I18N_LISTING_FIELDS = ("title", "short_description", "full_description", "ai_summary")
-_I18N_SERVICE_FIELDS = ("title", "subtitle", "description")
+_I18N_SERVICE_FIELDS = ("title", "description")
 
 _LOCALE_NORM = {
     "en":    "en",
