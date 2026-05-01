@@ -1,9 +1,11 @@
 // frontend/src/components/PrivateAccessSection.tsx
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useT } from "@/lib/i18n";
 import { WaveCrest } from "@/components/WaveTransition";
 
 const PrivateAccessSection = () => {
+  const t = useT();
   const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,12 +32,14 @@ const PrivateAccessSection = () => {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || "Something went wrong. Please try again.");
+        throw new Error(
+          data.detail || t("private_access", "error_fallback", "Something went wrong. Please try again."),
+        );
       }
 
       setSubmitted(true);
     } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || t("private_access", "error_fallback", "Something went wrong. Please try again."));
     } finally {
       setIsSubmitting(false);
     }
@@ -51,14 +55,19 @@ const PrivateAccessSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <p className="text-sm tracking-[0.3em] uppercase text-sun-light/90 mb-4">Private Access</p>
+          <p className="text-sm tracking-[0.3em] uppercase text-sun-light/90 mb-4">
+            {t("private_access", "eyebrow", "Private Access")}
+          </p>
           <h2 className="font-display text-3xl md:text-5xl font-light text-warm-white mb-4">
-            Begin the Conversation
+            {t("private_access", "title", "Begin the Conversation")}
           </h2>
           <div className="w-16 h-px bg-primary mx-auto mb-8" />
           <p className="text-base text-ocean-light/90 leading-relaxed max-w-md mx-auto mb-12">
-            Request a private consultation with our team. Share your vision and
-            we'll curate a bespoke plan for your life in Portugal.
+            {t(
+              "private_access",
+              "intro",
+              "Request a private consultation with our team. Share your vision and we'll curate a bespoke plan for your life in Portugal.",
+            )}
           </p>
         </motion.div>
 
@@ -73,7 +82,7 @@ const PrivateAccessSection = () => {
           >
             <input
               type="text"
-              placeholder="Full Name"
+              placeholder={t("private_access", "name_placeholder", "Full Name")}
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
@@ -83,7 +92,7 @@ const PrivateAccessSection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <input
                 type="email"
-                placeholder="Email"
+                placeholder={t("private_access", "email_placeholder", "Email")}
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
@@ -92,7 +101,7 @@ const PrivateAccessSection = () => {
               />
               <input
                 type="tel"
-                placeholder="Phone"
+                placeholder={t("private_access", "phone_placeholder", "Phone")}
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 disabled={isSubmitting}
@@ -100,7 +109,7 @@ const PrivateAccessSection = () => {
               />
             </div>
             <textarea
-              placeholder="Tell us about your vision..."
+              placeholder={t("private_access", "message_placeholder", "Tell us about your vision...")}
               value={form.message}
               onChange={(e) => setForm({ ...form, message: e.target.value })}
               rows={4}
@@ -117,7 +126,9 @@ const PrivateAccessSection = () => {
               disabled={isSubmitting}
               className="w-full py-4 bg-primary text-primary-foreground text-sm tracking-[0.25em] uppercase hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Sending..." : "Request Private Access"}
+              {isSubmitting
+                ? t("private_access", "submitting", "Sending...")
+                : t("private_access", "submit", "Request Private Access")}
             </button>
           </motion.form>
         ) : (
@@ -127,10 +138,10 @@ const PrivateAccessSection = () => {
             className="py-16"
           >
             <p className="font-display text-2xl font-light text-warm-white italic mb-3">
-              Thank you
+              {t("private_access", "thank_you_title", "Thank you")}
             </p>
             <p className="text-base text-ocean-light/85">
-              A member of our team will be in touch within 24 hours.
+              {t("private_access", "thank_you_body", "A member of our team will be in touch within 24 hours.")}
             </p>
           </motion.div>
         )}

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useT } from "@/lib/i18n";
 
 const ACCENT = "#fabe1e";
 const QUOTE_RULE = "rgba(250, 190, 30, 0.15)";
@@ -48,6 +49,15 @@ const Paragraph = ({ children }: { children: ReactNode }) => (
 );
 
 const InvestmentSection = () => {
+  const t = useT();
+
+  const bullets = [
+    t("investment", "block3.bullet1", "Long-term value"),
+    t("investment", "block3.bullet2", "Strong locations"),
+    t("investment", "block3.bullet3", "Architectural integrity"),
+    t("investment", "block3.bullet4", "Projects that shape their surroundings"),
+  ];
+
   return (
     <section
       id="investment"
@@ -76,7 +86,7 @@ const InvestmentSection = () => {
               marginBottom: "16px",
             }}
           >
-            Quiet Opportunities
+            {t("investment", "eyebrow", "Quiet Opportunities")}
           </div>
           <h2
             id="investment-heading"
@@ -88,22 +98,22 @@ const InvestmentSection = () => {
               margin: 0,
             }}
           >
-            Investing in real estate in Portugal
+            {t("investment", "heading", "Investing in real estate in Portugal")}
           </h2>
           <div style={{ width: "40px", height: "1px", backgroundColor: ACCENT, marginTop: "24px" }} />
         </div>
 
         {/* B. Numbered sections */}
         <div className="flex flex-col" style={{ rowGap: "56px" }}>
-          <NumberedBlock number="01" heading="Not all decisions are immediate">
-            <Paragraph>Some people come to Portugal not only to live, but to build something over time.</Paragraph>
-            <Paragraph>Some choices are made slowly — not from urgency, but from clarity.</Paragraph>
-            <Paragraph>In Portugal, this often means looking beyond the present, toward what will unfold over time.</Paragraph>
+          <NumberedBlock number="01" heading={t("investment", "block1.heading", "Not all decisions are immediate")}>
+            <Paragraph>{t("investment", "block1.p1", "Some people come to Portugal not only to live, but to build something over time.")}</Paragraph>
+            <Paragraph>{t("investment", "block1.p2", "Some choices are made slowly — not from urgency, but from clarity.")}</Paragraph>
+            <Paragraph>{t("investment", "block1.p3", "In Portugal, this often means looking beyond the present, toward what will unfold over time.")}</Paragraph>
           </NumberedBlock>
 
-          <NumberedBlock number="02" heading="Working with Mark">
+          <NumberedBlock number="02" heading={t("investment", "block2.heading", "Working with Mark")}>
             <Paragraph>
-              Through our partnership with{" "}
+              {t("investment", "block2.p1.before_link", "Through our partnership with ")}
               <a
                 href="https://onemark.pt"
                 target="_blank"
@@ -115,21 +125,16 @@ const InvestmentSection = () => {
                   paddingBottom: "1px",
                 }}
               >
-                Mark
+                {t("investment", "block2.link_label", "Mark")}
               </a>
-              , we offer access to a limited number of carefully selected opportunities — some are visible, others are not.
+              {t("investment", "block2.p1.after_link", ", we offer access to a limited number of carefully selected opportunities — some are visible, others are not.")}
             </Paragraph>
-            <Paragraph>We don't present everything, but only what is worth considering.</Paragraph>
+            <Paragraph>{t("investment", "block2.p2", "We don't present everything, but only what is worth considering.")}</Paragraph>
           </NumberedBlock>
 
-          <NumberedBlock number="03" heading="What we look for">
+          <NumberedBlock number="03" heading={t("investment", "block3.heading", "What we look for")}>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {[
-                "Long-term value",
-                "Strong locations",
-                "Architectural integrity",
-                "Projects that shape their surroundings",
-              ].map((value, idx, arr) => (
+              {bullets.map((value, idx, arr) => (
                 <li
                   key={value}
                   className="flex items-center"
@@ -174,9 +179,9 @@ const InvestmentSection = () => {
               margin: 0,
             }}
           >
-            Some opportunities never appear publicly.
+            {t("investment", "quote.line1", "Some opportunities never appear publicly.")}
             <br />
-            They move quietly, between people who know where to look.
+            {t("investment", "quote.line2", "They move quietly, between people who know where to look.")}
           </p>
         </div>
 
@@ -191,7 +196,7 @@ const InvestmentSection = () => {
               margin: 0,
             }}
           >
-            For those who think beyond the immediate
+            {t("investment", "cta.heading", "For those who think beyond the immediate")}
           </h3>
 
           <div
@@ -204,15 +209,15 @@ const InvestmentSection = () => {
               color: "#a8a29a",
             }}
           >
-            <p style={{ margin: 0 }}>This is not for everyone — and it is not meant to be.</p>
-            <p style={{ margin: 0 }}>If this resonates, we will take the conversation further.</p>
+            <p style={{ margin: 0 }}>{t("investment", "cta.body.line1", "This is not for everyone — and it is not meant to be.")}</p>
+            <p style={{ margin: 0 }}>{t("investment", "cta.body.line2", "If this resonates, we will take the conversation further.")}</p>
           </div>
 
           <a
             href="https://onemark.pt"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Continue with Mark on the OneMark website"
+            aria-label={t("investment", "cta.button_aria", "Continue with Mark on the OneMark website")}
             className="font-body investment-cta-button"
             style={{
               marginTop: "36px",
@@ -229,7 +234,7 @@ const InvestmentSection = () => {
               transition: "background 0.2s ease",
             }}
           >
-            Continue with Mark →
+            {t("investment", "cta.button", "Continue with Mark →")}
           </a>
 
           <div
@@ -248,7 +253,7 @@ const InvestmentSection = () => {
               rel="noopener noreferrer"
               style={{ color: "inherit", textDecoration: "none" }}
             >
-              onemark.pt
+              {t("investment", "cta.url_label", "onemark.pt")}
             </a>
           </div>
         </div>
