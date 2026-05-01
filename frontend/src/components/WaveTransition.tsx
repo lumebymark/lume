@@ -10,18 +10,18 @@
 //     <Navbar />            ← reads useWave() to flip its colors
 //     ...page content...
 //     <PrivateAccessSection /> ← must contain <WaveCrest /> at its top
-//     <WaveOverlay />       ← fixed fill only (no crests)
+//     <WaveOverlay />       ← fixed teal fill anchored to section top
 //   </WaveProvider>
 //
 // The wave CREST SVGs live inside PrivateAccessSection (via <WaveCrest />)
 // so they scroll on the compositor thread alongside the section —
 // eliminating the rAF lag that caused the black gap during fast scrolling.
 //
-// The fill (WaveOverlay) is a fixed element that covers from viewport-top
-// down to the section's top. It uses a large buffer (+160px) so that even
-// when the main thread lags behind the compositor by a frame or two, the
-// fill still reaches the section.  The section's z-[32] stacking context
-// ensures any overshoot is hidden behind its own background.
+// The fill (WaveOverlay) is a fixed element that covers ONLY the visible
+// section area (from anchorY downward) — it does NOT extend up into the
+// navbar zone. That's intentional: leaving the area above the wave line
+// transparent is what makes the wavy crest visible passing through the
+// (transparent) navbar. Matches wave_demo_1.
 
 import {
   createContext,
@@ -35,10 +35,8 @@ import {
 export const OCEAN_COLOR  = "#4e8ba1";  // exported — must match PrivateAccessSection bg
 export const WAVE_HEIGHT  = 60;         // px — height of the wavy crest strip
 export const SEAM_OVERLAP = 2;          // px — crest extends this far into the section
-const FILL_BUFFER  = WAVE_HEIGHT + 100; // px — fill overshoots by this much to bridge lag
 const FADE_START   = 600;              // px — section.top above this: wave invisible
 const FADE_END     = 80;               // px — section.top below this: wave fully opaque
-                                        //      also where navbar bg begins to fade
 const SUBMERGE_AT  = 30;               // px — section.top ≤ this: navbar submerges (matches wave_demo_1)
 // ───────────────────────────────────────────────────────────────────────────
 
@@ -75,11 +73,13 @@ export const WaveProvider = ({
 
       const S = target.getBoundingClientRect().top;
       const anchorY = Math.max(S, 0);
+      const ch = window.innerHeight;
 
-      // Fill height: covers viewport-top down to section-top, plus a generous
-      // buffer so compositor-thread lag never leaves an uncovered gap.
-      // The section's z-[32] stacking context hides any overshoot seamlessly.
-      const fillHeight = anchorY + FILL_BUFFER;
+      // Fill anchored at the section's top, extending down to viewport bottom.
+      // Critically: it does NOT extend ABOVE anchorY — leaving the navbar zone
+      // transparent so the wavy crest is visible as it climbs over the navbar.
+      const fillY      = anchorY;
+      const fillHeight = Math.max(0, ch - anchorY);
 
       // Wave opacity: fades in as section approaches, fully opaque near navbar.
       const fadeRange = FADE_START - FADE_END;
@@ -89,6 +89,7 @@ export const WaveProvider = ({
       );
 
       const root = document.documentElement;
+      root.style.setProperty("--lume-wave-fill-y",  `${fillY}px`);
       root.style.setProperty("--lume-wave-fill-h",  `${fillHeight}px`);
       root.style.setProperty("--lume-wave-opacity",  String(opacity));
 
@@ -113,6 +114,7 @@ export const WaveProvider = ({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", update);
       const root = document.documentElement;
+      root.style.removeProperty("--lume-wave-fill-y");
       root.style.removeProperty("--lume-wave-fill-h");
       root.style.removeProperty("--lume-wave-opacity");
       document.body.classList.remove("lume-wave-frozen");
@@ -188,8 +190,10 @@ export const WaveCrest = () => (
 );
 
 /**
- * Fixed teal fill only — no crests (those live in <WaveCrest /> inside the
- * section). Drop anywhere inside <WaveProvider>.
+ * Fixed teal fill anchored at the section's top edge (translated to anchorY)
+ * and extending down to the viewport bottom. Mirrors wave_demo_1's fill model:
+ * the fill never extends above the wave line, so the crest is visible passing
+ * through the (transparent) navbar.
  *
  * z-index 30: above page content, below the navbar (z-50) and the
  * section's own stacking context (z-[32]).
@@ -200,10 +204,11 @@ export const WaveOverlay = () => (
     className="pointer-events-none fixed inset-x-0 top-0"
     style={{
       height: "var(--lume-wave-fill-h, 0px)",
+      transform: "translate3d(0, var(--lume-wave-fill-y, 0px), 0)",
       opacity: "var(--lume-wave-opacity, 0)",
       background: OCEAN_COLOR,
       zIndex: 30,
-      willChange: "height, opacity",
+      willChange: "transform, height, opacity",
     }}
   />
 );
