@@ -89,7 +89,7 @@ const HeroSection = () => {
           <a
             href="/#questionnaire"
             onClick={handleGuideClick}
-            className="px-8 py-3 bg-primary/90 text-primary-foreground text-sm tracking-[0.2em] uppercase hover:bg-primary transition-all duration-300"
+            className="px-8 py-3 bg-[#fabe1e] text-[#0f0f0f] text-sm tracking-[0.2em] uppercase hover:bg-[#ffd147] transition-all duration-300"
           >
             {t("hero", "cta_let_us_guide_you", "Let Us Guide You")}
           </a>
