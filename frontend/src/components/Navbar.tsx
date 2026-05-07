@@ -105,7 +105,7 @@ const Navbar = () => {
         {/* Logo */}
         <a href="/" className="flex items-center leading-none flex-shrink-0">
           <img
-            src="/logo.png"
+            src="/navbar-logo.png"
             alt="LUME by Mark"
             className={`h-[3.6rem] md:h-[4.8rem] w-auto transition-all duration-500 ${
               submerged ? "brightness-0 invert" : ""
