@@ -1,0 +1,34 @@
+name: db-check
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/db-check.yml'
+
+jobs:
+  schema-matches-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Postgres + apply migrations
+        run: |
+          supabase init --workdir . --force || true
+          supabase start
+
+      - name: Dump live schema from local DB
+        run: supabase db dump --schema public --file supabase/schema.generated.sql
+
+      - name: Diff against committed schema
+        run: |
+          diff -u supabase/schema.sql supabase/schema.generated.sql || {
+            echo ""
+            echo "❌ supabase/schema.sql is out of sync with supabase/migrations/."
+            echo "   Run \`npm run db:dump\` and commit the result."
+            exit 1
+          }
