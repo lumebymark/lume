@@ -161,7 +161,7 @@ const Navbar = () => {
                 <span className="flex items-center justify-center h-12 text-[11px] lg:text-[13.92px] font-medium tracking-[0.18em] lg:tracking-[0.22em] uppercase text-muted-foreground group-hover:text-foreground transition-colors duration-300 whitespace-nowrap">
                   {item.label}
                 </span>
-                <span className="flex items-center justify-center h-12 text-[11px] lg:text-[13.92px] italic font-serif font-medium tracking-wide text-foreground leading-tight px-1">
+                <span className="flex items-center justify-center h-12 text-[11px] lg:text-[13.92px] italic font-serif font-medium tracking-wide text-primary leading-tight px-1">
                   {item.subtitle}
                 </span>
               </motion.div>
@@ -204,7 +204,7 @@ const Navbar = () => {
                   <span className="text-[16.1px] tracking-[0.2em] uppercase text-foreground">
                     {item.label}
                   </span>
-                  <span className="text-[13.8px] italic font-serif text-muted-foreground">
+                  <span className="text-[13.8px] italic font-serif text-primary">
                     {item.subtitle}
                   </span>
                 </a>

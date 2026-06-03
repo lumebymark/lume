@@ -25,7 +25,7 @@ const CollectingSection = () => {
     <section
       id="collecting"
       className="section-padding relative overflow-hidden"
-      style={{ background: "hsl(var(--card))" }}
+      style={{ background: "hsl(var(--sand))" }}
     >
       <div className="max-w-[1180px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
         {/* Image with decorative honey frame in the lower-right */}

@@ -179,7 +179,7 @@ const QuestionnaireSection = () => {
   // ── Render ────────────────────────────────────────────────────────────
 
   return (
-    <section id="questionnaire" className="min-h-screen flex items-center bg-card section-padding">
+    <section id="questionnaire" className="min-h-screen flex items-center bg-background section-padding">
       <div className="max-w-3xl mx-auto w-full">
 
         {/* Intro — hidden but space-reserved on the 'thanks' screen
@@ -245,7 +245,7 @@ const QuestionnaireSection = () => {
                       className={`px-6 py-4 border text-sm tracking-wider transition-all duration-300 ${
                         selected
                           ? "border-primary bg-primary/10 text-foreground"
-                          : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                          : "border-border bg-white/70 text-muted-foreground hover:border-primary/50 hover:text-foreground"
                       }`}
                     >
                       {t("questionnaire", option.labelKey)}
@@ -286,7 +286,7 @@ const QuestionnaireSection = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-8 py-3 bg-primary text-primary-foreground text-xs tracking-[0.2em] uppercase hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  className="px-8 py-3 bg-[#2a1d10] text-[#fbf4e6] text-xs tracking-[0.2em] uppercase hover:bg-[#3d2c1a] transition-colors disabled:opacity-50"
                 >
                   {isSubmitting
                     ? t("questionnaire", "email.button_loading")

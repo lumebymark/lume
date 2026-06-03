@@ -114,7 +114,7 @@ const ServicesSection = () => {
   const ease = [0.22, 0.61, 0.36, 1] as const;
 
   return (
-    <section id="services" className="section-padding bg-sand">
+    <section id="services" className="section-padding bg-[#e4d6b7]">
       <div className="max-w-7xl mx-auto">
         {/* ─── Header ──────────────────────────────────────── */}
         <motion.div
