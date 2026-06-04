@@ -46,11 +46,13 @@ export default function LanguageSwitcher({ variant = "navbar" }: LanguageSwitche
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1.5 text-xs tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
         aria-label="Change language"
       >
         <Globe size={14} strokeWidth={1.5} />
-        <span>{LOCALE_SHORT[locale]}</span>
+        <span className="text-[11px] lg:text-[13.92px] font-medium tracking-[0.18em] lg:tracking-[0.22em] uppercase">
+          {LOCALE_SHORT[locale]}
+        </span>
       </button>
       {open && (
         <div
