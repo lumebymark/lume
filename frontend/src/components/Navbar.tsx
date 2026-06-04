@@ -150,7 +150,7 @@ const Navbar = () => {
             submerged                            → espresso on the honey wave crest
             default                              → each item's own colour (espresso / muted) */}
       <div
-        className={`px-[clamp(24px,7vw,96px)] flex items-center h-14 md:h-[5.5rem] gap-6 transition-colors duration-300 ${
+        className={`px-[clamp(24px,7vw,96px)] flex items-center justify-between h-14 md:h-[5.5rem] gap-6 transition-colors duration-300 ${
           lightText ? "[&_*]:!text-warm-white" : submerged ? "[&_*]:!text-charcoal" : ""
         }`}
       >
@@ -166,7 +166,10 @@ const Navbar = () => {
           />
         </a>
 
-        <div className="hidden md:flex flex-1 items-center justify-evenly">
+        {/* Nav items — a fixed-spacing cluster (no longer flex-1) so they stay
+            grouped on wide screens instead of spreading to the edges; the
+            logo and language switcher sit at the borders via justify-between. */}
+        <div className="hidden md:flex items-center justify-center gap-x-2 lg:gap-x-6">
           {navItems.map((item) => (
             <motion.a
               key={item.href}
@@ -207,7 +210,7 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="md:hidden text-foreground ml-auto"
+          className="md:hidden text-foreground"
           aria-label="Toggle menu"
         >
           {open ? <X size={20} /> : <Menu size={20} />}
