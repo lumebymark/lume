@@ -9,16 +9,15 @@ const Footer = () => {
   const t = useT();
   const year = new Date().getFullYear();
 
-  // Curated location links. Each points at a filtered properties view; if the
-  // area has no current listings, PropertiesPage falls back to the full
-  // collection (see frontend/src/pages/PropertiesPage.tsx).
+  // Curated location links. Each points at a region-filtered properties view;
+  // if the region has no current listings, PropertiesPage falls back to the
+  // full collection (see frontend/src/pages/PropertiesPage.tsx).
   const locationLinks = [
-    { key: "lisbon", fallback: "Buy houses in Lisbon", to: "/properties?city=Lisbon" },
-    { key: "porto", fallback: "Buy houses in Porto", to: "/properties?city=Porto" },
-    { key: "cascais", fallback: "Buy houses in Cascais", to: "/properties?city=Cascais" },
-    { key: "vilamoura", fallback: "Buy houses in Vilamoura", to: "/properties?city=Vilamoura" },
-    { key: "carvoeiro", fallback: "Buy houses in Carvoeiro", to: "/properties?city=Carvoeiro" },
-    { key: "madeira", fallback: "Buy houses in Madeira", to: "/properties?region=Madeira" },
+    { key: "lisbon_cascais", fallback: "Lisbon & Cascais", region: "Lisbon" },
+    { key: "porto_douro", fallback: "Porto & Douro Valley", region: "Porto" },
+    { key: "alentejo", fallback: "Alentejo", region: "Alentejo" },
+    { key: "algarve", fallback: "Algarve", region: "Algarve" },
+    { key: "silver_coast", fallback: "Silver Coast", region: "Silver Coast" },
   ];
 
   const legalLinks = [
@@ -106,7 +105,7 @@ const Footer = () => {
             <ul className="flex flex-col gap-3">
               {locationLinks.map((l) => (
                 <li key={l.key}>
-                  <Link to={l.to} className={linkClass}>
+                  <Link to={`/properties?region=${encodeURIComponent(l.region)}`} className={linkClass}>
                     {t("footer", `location_${l.key}`, l.fallback)}
                   </Link>
                 </li>
