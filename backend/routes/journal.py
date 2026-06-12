@@ -12,7 +12,8 @@ Admin (require_admin):
     PUT    /api/admin/journal/{id}
     DELETE /api/admin/journal/{id}
     POST   /api/admin/journal/{id}/translate         DeepL plain-text fields.
-    POST   /api/admin/journal/{id}/translate-body    DeepL the Tiptap doc.
+    POST   /api/admin/journal/{id}/translate-body    DeepL the Tiptap doc into
+                                                     one target locale.
     POST   /api/admin/journal/upload-image           Multipart image upload.
 """
 
@@ -24,7 +25,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from pydantic import BaseModel
 
 from auth import require_admin
-from routes.translations import _deepl_translate, _LOCALES
+from routes.translations import _deepl_translate, _deepl_translate_batch, _LOCALES
 
 
 router = APIRouter(tags=["journal"])
@@ -194,6 +195,7 @@ async def admin_journal_translate_field(
 
 class JournalBodyTranslateRequest(BaseModel):
     source_locale: str = "en"
+    target_locale: str
     overwrite: bool = False
 
 
@@ -215,11 +217,14 @@ def _translate_doc(doc: Any, source: str, target: str) -> Any:
     translated_doc = copy.deepcopy(doc)
     text_nodes: List[Dict[str, Any]] = []
     _collect_text_nodes(translated_doc, text_nodes)
-    for node in text_nodes:
-        original = node.get("text") or ""
-        if not original.strip():
-            continue
-        node["text"] = _deepl_translate(original, source=source, target=target)
+    to_translate = [n for n in text_nodes if (n.get("text") or "").strip()]
+    if not to_translate:
+        return translated_doc
+    translated = _deepl_translate_batch(
+        [n["text"] for n in to_translate], source=source, target=target
+    )
+    for node, text in zip(to_translate, translated):
+        node["text"] = text
     return translated_doc
 
 
@@ -235,6 +240,14 @@ async def admin_journal_translate_body(
         raise HTTPException(
             status_code=422, detail=f"Invalid source_locale '{body.source_locale}'."
         )
+    if body.target_locale not in _LOCALES:
+        raise HTTPException(
+            status_code=422, detail=f"Invalid target_locale '{body.target_locale}'."
+        )
+    if body.target_locale == body.source_locale:
+        raise HTTPException(
+            status_code=422, detail="target_locale must differ from source_locale."
+        )
 
     article = admin_get_journal(article_id)
     if not article:
@@ -248,31 +261,28 @@ async def admin_journal_translate_body(
     if not isinstance(src_doc, dict) or not src_doc.get("content"):
         raise HTTPException(
             status_code=422,
-            detail=f"No body content found for locale '{body.source_locale}'.",
+            detail=f"No body content found for locale '{body.source_locale}'. "
+                   "Save the article first so the source body is in the database.",
         )
 
+    target = body.target_locale
     current_i18n = dict(article.get("body_i18n") or {})
-    updates: dict = {}
 
-    for target in _LOCALES:
-        if target == body.source_locale:
-            continue
-        if target == "en":
-            existing = article.get("body") or {}
-            is_empty = not (isinstance(existing, dict) and existing.get("content"))
-        else:
-            existing = current_i18n.get(target) or {}
-            is_empty = not (isinstance(existing, dict) and existing.get("content"))
-        if not body.overwrite and not is_empty:
-            continue
+    if target == "en":
+        existing = article.get("body") or {}
+    else:
+        existing = current_i18n.get(target) or {}
+    is_empty = not (isinstance(existing, dict) and existing.get("content"))
+    if not body.overwrite and not is_empty:
+        return article
 
-        translated = _translate_doc(src_doc, source=body.source_locale, target=target)
-        if target == "en":
-            updates["body"] = translated
-        else:
-            current_i18n[target] = translated
+    translated = _translate_doc(src_doc, source=body.source_locale, target=target)
+    if target == "en":
+        updates: dict = {"body": translated, "body_i18n": current_i18n}
+    else:
+        current_i18n[target] = translated
+        updates = {"body_i18n": current_i18n}
 
-    updates["body_i18n"] = current_i18n
     updated = admin_update_journal(article_id, updates)
     return updated or article
 

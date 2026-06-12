@@ -545,12 +545,13 @@ export async function translateJournalField(
 
 export async function translateJournalBody(
   id: string,
-  options: { source_locale?: Locale; overwrite?: boolean } = {},
+  options: { source_locale?: Locale; target_locale: Locale; overwrite?: boolean },
 ): Promise<JournalArticle> {
   const res = await adminFetch(`/journal/${id}/translate-body`, {
     method: "POST",
     body: JSON.stringify({
       source_locale: options.source_locale ?? "en",
+      target_locale: options.target_locale,
       overwrite: options.overwrite ?? false,
     }),
   });

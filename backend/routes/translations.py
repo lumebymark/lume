@@ -74,7 +74,8 @@ _SERVICE_TRANSLATABLE = ("title", "description")
 # SHARED DEEPL HELPER
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _deepl_translate(text: str, source: str, target: str) -> str:
+def _deepl_translate_batch(texts: list[str], source: str, target: str) -> list[str]:
+    """Translate up to 50 texts per DeepL request, preserving order."""
     api_key = os.getenv("DEEPL_API_KEY", "").strip()
     if not api_key:
         raise HTTPException(
@@ -86,26 +87,42 @@ def _deepl_translate(text: str, source: str, target: str) -> str:
         if api_key.endswith(":fx")
         else "https://api.deepl.com/v2/translate"
     )
-    try:
-        resp = httpx.post(
-            base,
-            data={
-                "text": text,
-                "source_lang": _DEEPL_SOURCE[source],
-                "target_lang": _DEEPL_TARGET[target],
-                "preserve_formatting": "1",
-            },
-            headers={"Authorization": f"DeepL-Auth-Key {api_key}"},
-            timeout=20.0,
-        )
-        resp.raise_for_status()
-    except httpx.HTTPError as e:
-        raise HTTPException(status_code=502, detail=f"DeepL request failed: {e}")
-    payload = resp.json()
-    translations = payload.get("translations") or []
-    if not translations:
-        raise HTTPException(status_code=502, detail="DeepL returned no translations")
-    return translations[0].get("text", "")
+    results: list[str] = []
+    _DEEPL_MAX_TEXTS = 50  # DeepL API limit per request
+    for i in range(0, len(texts), _DEEPL_MAX_TEXTS):
+        chunk = texts[i : i + _DEEPL_MAX_TEXTS]
+        try:
+            resp = httpx.post(
+                base,
+                data={
+                    "text": chunk,
+                    "source_lang": _DEEPL_SOURCE[source],
+                    "target_lang": _DEEPL_TARGET[target],
+                    "preserve_formatting": "1",
+                },
+                headers={"Authorization": f"DeepL-Auth-Key {api_key}"},
+                timeout=60.0,
+            )
+            resp.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 429:
+                raise HTTPException(
+                    status_code=429,
+                    detail="DeepL rate limit reached. Wait a moment and try again.",
+                )
+            raise HTTPException(status_code=502, detail=f"DeepL request failed: {e}")
+        except httpx.HTTPError as e:
+            raise HTTPException(status_code=502, detail=f"DeepL request failed: {e}")
+        payload = resp.json()
+        translations = payload.get("translations") or []
+        if len(translations) != len(chunk):
+            raise HTTPException(status_code=502, detail="DeepL returned no translations")
+        results.extend(t.get("text", "") for t in translations)
+    return results
+
+
+def _deepl_translate(text: str, source: str, target: str) -> str:
+    return _deepl_translate_batch([text], source=source, target=target)[0]
 
 
 # ═══════════════════════════════════════════════════════════════════════════

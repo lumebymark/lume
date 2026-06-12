@@ -145,6 +145,7 @@ export default function AdminJournalForm() {
   const [error, setError] = useState("");
   const [savedTick, setSavedTick] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [translatingBody, setTranslatingBody] = useState(false);
 
   // Keep a ref of the latest form so the registered save handler always sees fresh data
   const formRef = useRef(form);
@@ -284,13 +285,21 @@ export default function AdminJournalForm() {
   };
 
   const handleTranslateBody = async () => {
-    if (isNew || !id) return;
+    if (isNew || !id || locale === "en" || translatingBody) return;
+    setError("");
+    setTranslatingBody(true);
     try {
-      const updated = await translateJournalBody(id, { source_locale: "en", overwrite: false });
+      const updated = await translateJournalBody(id, {
+        source_locale: "en",
+        target_locale: locale,
+        overwrite: false,
+      });
       setForm(fromArticle(updated));
       queryClient.setQueryData(["admin-journal", id], updated);
     } catch (e: any) {
       setError(e?.message || "Body translation failed");
+    } finally {
+      setTranslatingBody(false);
     }
   };
 
@@ -423,7 +432,8 @@ export default function AdminJournalForm() {
         <div className="border-t border-admin-border px-4 py-3 text-xs text-admin-text-muted space-y-1.5">
           <p><span className="font-semibold text-admin-text">1. Save first.</span> Translation buttons are locked on a new article. Save once, then come back to translate.</p>
           <p><span className="font-semibold text-admin-text">2. Plain-text fields</span> (Kicker, Title, Subtitle, Sources) — switch to the locale tab you want to translate <em>from</em>, make sure the field has text, then click <span className="font-mono">↺ Translate</span>. It fills all other locales that are still empty.</p>
-          <p><span className="font-semibold text-admin-text">3. Body</span> — always translates from English. Switch to any non-EN tab and click <span className="font-mono">↺ Translate body from EN</span>. The English body must be saved to the database first (save the article after writing the body).</p>
+          <p><span className="font-semibold text-admin-text">3. Body</span> — always translates from English, one language at a time. Open the language tab you want to fill and click <span className="font-mono">↺ Translate body EN → …</span>; only that tab's language is translated. Repeat in each tab. (Doing one language per click keeps us under the DeepL free-tier rate limit.) The English body must be saved to the database first — save the article after writing the body.</p>
+          <p><span className="font-semibold text-admin-text">3a. If you see a rate-limit error (429)</span> — wait a minute, then translate the next language.</p>
           <p><span className="font-semibold text-admin-text">4. Won't overwrite.</span> Existing translations are never replaced automatically — only empty fields get filled. To redo a translation, clear the field manually first.</p>
           <p><span className="font-semibold text-admin-text">5. Dot indicators</span> on the tabs turn green once the Title for that locale is filled — use them to track progress.</p>
         </div>
@@ -494,9 +504,13 @@ export default function AdminJournalForm() {
               <button
                 type="button"
                 onClick={handleTranslateBody}
-                className="rounded border border-admin-accent/50 px-2 py-0.5 text-[11px] text-admin-accent transition hover:bg-admin-accent-soft"
+                disabled={translatingBody}
+                title={`Translate the English body into ${LOCALES.find((l) => l.code === locale)?.name} only`}
+                className="rounded border border-admin-accent/50 px-2 py-0.5 text-[11px] text-admin-accent transition hover:bg-admin-accent-soft disabled:cursor-not-allowed disabled:opacity-40"
               >
-                ↺ Translate body from EN
+                {translatingBody
+                  ? "Translating…"
+                  : `↺ Translate body EN → ${LOCALES.find((l) => l.code === locale)?.short}`}
               </button>
             )}
             {isNew && (
