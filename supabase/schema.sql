@@ -849,88 +849,64 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."set_published_at"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_published_at"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_published_at"() TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."collecting_media" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."collecting_media" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."collecting_media" TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."set_published_at_journal"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_published_at_journal"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_published_at_journal"() TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."contacts" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."contacts" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."contacts" TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "anon";
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."set_updated_at"() TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."journal_articles" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."journal_articles" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."journal_articles" TO "service_role";
 
 
 
-GRANT ALL ON FUNCTION "public"."translations_set_updated_at"() TO "anon";
-GRANT ALL ON FUNCTION "public"."translations_set_updated_at"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."translations_set_updated_at"() TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."listings" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."listings" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."listings" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."collecting_media" TO "anon";
-GRANT ALL ON TABLE "public"."collecting_media" TO "authenticated";
-GRANT ALL ON TABLE "public"."collecting_media" TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."locations" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."locations" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."locations" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."contacts" TO "anon";
-GRANT ALL ON TABLE "public"."contacts" TO "authenticated";
-GRANT ALL ON TABLE "public"."contacts" TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."regions" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."regions" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."regions" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."journal_articles" TO "anon";
-GRANT ALL ON TABLE "public"."journal_articles" TO "authenticated";
-GRANT ALL ON TABLE "public"."journal_articles" TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."services" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."services" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."services" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."listings" TO "anon";
-GRANT ALL ON TABLE "public"."listings" TO "authenticated";
-GRANT ALL ON TABLE "public"."listings" TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."team_members" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."team_members" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."team_members" TO "service_role";
 
 
 
-GRANT ALL ON TABLE "public"."locations" TO "anon";
-GRANT ALL ON TABLE "public"."locations" TO "authenticated";
-GRANT ALL ON TABLE "public"."locations" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."regions" TO "anon";
-GRANT ALL ON TABLE "public"."regions" TO "authenticated";
-GRANT ALL ON TABLE "public"."regions" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."services" TO "anon";
-GRANT ALL ON TABLE "public"."services" TO "authenticated";
-GRANT ALL ON TABLE "public"."services" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."team_members" TO "anon";
-GRANT ALL ON TABLE "public"."team_members" TO "authenticated";
-GRANT ALL ON TABLE "public"."team_members" TO "service_role";
-
-
-
-GRANT ALL ON TABLE "public"."translations" TO "anon";
-GRANT ALL ON TABLE "public"."translations" TO "authenticated";
-GRANT ALL ON TABLE "public"."translations" TO "service_role";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."translations" TO "anon";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."translations" TO "authenticated";
+GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLE "public"."translations" TO "service_role";
 
 
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "service_role";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT UPDATE ON SEQUENCES TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT UPDATE ON SEQUENCES TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT UPDATE ON SEQUENCES TO "service_role";
 
 
 
@@ -938,9 +914,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQ
 
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS TO "service_role";
 
 
 
@@ -948,9 +921,9 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUN
 
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "postgres";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
-ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLES TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLES TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT REFERENCES,TRIGGER,TRUNCATE,MAINTAIN ON TABLES TO "service_role";
 
 
 
