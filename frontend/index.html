@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f5f0ea" />
 
+    <!-- Google Analytics 4 (gtag.js) with Consent Mode v2.
+         The library loads on every page so Google can detect the tag, but
+         consent defaults to "denied", so no _ga cookies are set until the
+         visitor accepts analytical cookies in the banner (see CookieConsent.tsx
+         + lib/analytics.ts). This matches our Cookies Policy and GDPR. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-49NYEEW039"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // Default everything to denied until the visitor opts in.
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied'
+      });
+
+      gtag('config', 'G-49NYEEW039');
+    </script>
+
     <!-- SEO: These placeholders are replaced server-side by FastAPI/seo.py -->
     <title>__PAGE_TITLE__</title>
     <meta name="description" content="__PAGE_DESCRIPTION__" />
