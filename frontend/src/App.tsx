@@ -18,6 +18,7 @@ import CompanyNewsPage from "./pages/CompanyNewsPage.tsx";
 import JournalIndex from "./pages/JournalIndex.tsx";
 import JournalArticle from "./pages/JournalArticle.tsx";
 import LegalPage from "./pages/LegalPage.tsx";
+import ScrollToTop from "./components/ScrollToTop.tsx";
 
 // Admin pages
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
@@ -59,6 +60,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter basename={ROUTER_BASENAME || undefined}>
+          <ScrollToTop />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
