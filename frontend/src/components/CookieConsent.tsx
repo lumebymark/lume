@@ -3,12 +3,19 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useT } from "@/lib/i18n";
 import { getCookie, setCookie, COOKIE_CONSENT_KEY } from "@/lib/cookies";
+import { setAnalyticsConsent } from "@/lib/analytics";
 
 const CookieConsent = () => {
   const t = useT();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Returning visitors who already accepted: re-grant analytics consent,
+    // since the page defaults to "denied" on every load.
+    if (getCookie(COOKIE_CONSENT_KEY) === "accepted") {
+      setAnalyticsConsent(true);
+    }
+
     // Small delay so it doesn't flash on page load
     const timer = setTimeout(() => {
       if (!getCookie(COOKIE_CONSENT_KEY)) {
@@ -20,11 +27,13 @@ const CookieConsent = () => {
 
   const handleAccept = () => {
     setCookie(COOKIE_CONSENT_KEY, "accepted", 365);
+    setAnalyticsConsent(true);
     setVisible(false);
   };
 
   const handleDecline = () => {
     setCookie(COOKIE_CONSENT_KEY, "declined", 30);
+    setAnalyticsConsent(false);
     setVisible(false);
   };
 
