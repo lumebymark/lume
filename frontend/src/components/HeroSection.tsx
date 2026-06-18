@@ -27,16 +27,27 @@ import SunWave from "@/components/SunWave";
 //
 // Codec order is expressed by listing the preferred type first in `order`.
 // The poster paints instantly while the video streams in behind it.
+// The hero footage streams from a public Supabase Storage bucket, which is
+// CDN-backed and supports HTTP Range requests — so it loads from an edge node
+// near the visitor and streams/seeks smoothly, instead of being pulled from the
+// single-region app origin (which stuttered on mobile networks). Posters stay
+// local: they're tiny and should paint instantly with the rest of the page.
+// Override the base at build time with VITE_HERO_MEDIA_BASE if the project or
+// bucket ever changes.
+const HERO_MEDIA_BASE =
+  import.meta.env.VITE_HERO_MEDIA_BASE ||
+  "https://ryizbwtscuczqusoeuvc.supabase.co/storage/v1/object/public/hero-videos";
+
 const HERO_SOURCES = {
   desktop: {
-    mp4: "/hero-desktop.mp4",
-    webm: "/hero-desktop.webm",
+    mp4: `${HERO_MEDIA_BASE}/hero-desktop.mp4`,
+    webm: `${HERO_MEDIA_BASE}/hero-desktop.webm`,
     poster: "/hero-desktop-poster.jpg",
     order: ["mp4", "webm"],
   },
   mobile: {
-    mp4: "/hero-mobile.mp4",
-    webm: "/hero-mobile.webm",
+    mp4: `${HERO_MEDIA_BASE}/hero-mobile.mp4`,
+    webm: `${HERO_MEDIA_BASE}/hero-mobile.webm`,
     poster: "/hero-mobile-poster.jpg",
     order: ["webm", "mp4"],
   },
