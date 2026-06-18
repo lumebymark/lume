@@ -71,7 +71,7 @@ const PrivateAccessSection = () => {
             "radial-gradient(ellipse 80% 60% at 30% 10%, rgba(255,240,200,0.6), transparent 60%), radial-gradient(ellipse 60% 50% at 90% 80%, rgba(176,78,26,0.4), transparent 60%)",
         }}
       />
-      <div className="relative max-w-3xl mx-auto text-center">
+      <div className="relative max-w-4xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -198,44 +198,44 @@ const PrivateAccessSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="mt-16 pt-10 grid grid-cols-1 sm:grid-cols-3 gap-8 text-left max-w-lg mx-auto"
-            style={{ borderTop: "1px solid rgba(42,29,16,0.18)" }}
+            className="mt-16 pt-10 grid grid-cols-1 sm:grid-cols-3 gap-10 text-left max-w-4xl mx-auto"
+            style={{ borderTop: "1px solid rgba(42,29,16,0.25)" }}
           >
             {(phoneLandline || phone) && (
               <div>
-                <p className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(42,29,16,0.6)" }}>
+                <p className="text-sm tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(42,29,16,0.85)" }}>
                   {t("contact", "phone_label", "Phone")}
                 </p>
                 <div className="flex flex-col gap-2">
                   {phoneLandline && (
-                    <div className="flex items-baseline gap-2">
+                    <div className="flex items-baseline gap-2 whitespace-nowrap">
                       <a
                         href={`tel:${phoneLandline.replace(/\s/g, "")}`}
-                        className="font-display text-base font-light transition-colors"
+                        className="font-display text-lg font-normal transition-colors"
                         style={{ color: "#2a1d10" }}
                       >
                         {phoneLandline}
                       </a>
                       <span
-                        className="text-xs"
-                        style={{ color: "rgba(42,29,16,0.55)" }}
+                        className="text-sm"
+                        style={{ color: "rgba(42,29,16,0.7)" }}
                       >
                         ({t("contact", "phone_calls_note", "calls")})
                       </span>
                     </div>
                   )}
                   {phone && (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 whitespace-nowrap">
                       <a
                         href={`tel:${phone}`}
-                        className="font-display text-base font-light transition-colors"
+                        className="font-display text-lg font-normal transition-colors"
                         style={{ color: "#2a1d10" }}
                       >
                         {phone}
                       </a>
                       <span
-                        className="text-xs"
-                        style={{ color: "rgba(42,29,16,0.55)" }}
+                        className="text-sm"
+                        style={{ color: "rgba(42,29,16,0.7)" }}
                       >
                         ({t("contact", "whatsapp_text_note", "text")})
                       </span>
@@ -267,12 +267,12 @@ const PrivateAccessSection = () => {
 
             {email && (
               <div>
-                <p className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(42,29,16,0.6)" }}>
+                <p className="text-sm tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(42,29,16,0.85)" }}>
                   {t("contact", "email_label", "Email")}
                 </p>
                 <a
                   href={`mailto:${email}`}
-                  className="font-display text-base font-light transition-colors break-all"
+                  className="font-display text-lg font-normal transition-colors break-all"
                   style={{ color: "#2a1d10" }}
                 >
                   {email}
@@ -282,10 +282,10 @@ const PrivateAccessSection = () => {
 
             {address && (
               <div>
-                <p className="text-xs tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(42,29,16,0.6)" }}>
+                <p className="text-sm tracking-[0.25em] uppercase mb-3" style={{ color: "rgba(42,29,16,0.85)" }}>
                   {t("contact", "address_label", "Address")}
                 </p>
-                <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: "rgba(42,29,16,0.85)" }}>
+                <p className="text-base leading-relaxed whitespace-pre-line" style={{ color: "#2a1d10" }}>
                   {address}
                 </p>
                 {mapsUrl && (
@@ -293,8 +293,8 @@ const PrivateAccessSection = () => {
                     href={mapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block mt-2 text-xs transition-colors underline underline-offset-2"
-                    style={{ color: "rgba(42,29,16,0.7)" }}
+                    className="inline-block mt-2 text-sm transition-colors underline underline-offset-2"
+                    style={{ color: "rgba(42,29,16,0.85)" }}
                   >
                     {t("contact", "map_link", "View on map")}
                   </a>
