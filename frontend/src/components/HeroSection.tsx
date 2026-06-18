@@ -9,26 +9,51 @@ import SunWave from "@/components/SunWave";
 // exists (or if it ever fails to load) we fall back to the desktop video so the
 // hero is never blank.
 //
-// Each variant lists the VP9 WebM first and an H.264 MP4 second. The browser
-// walks the <source> list and uses the first it can play — it does NOT pick the
-// smallest — so order is our codec preference. VP9/WebM is ~25-35% smaller than
-// H.264 at the same quality, so modern browsers load the lighter WebM and the
-// hero appears faster. The MP4 is the universal fallback for the few browsers
-// that can't play WebM. (Now that the footage is 1080p rather than 4K, VP9
-// decode is light and hardware-accelerated, so it no longer stutters.)
+// The browser walks the <source> list and uses the FIRST it can play — it does
+// NOT pick the smallest — so order is our codec preference. We choose a
+// different preference per variant because the bottleneck differs:
+//
+//   • Desktop → H.264 MP4 first. Many desktop GPUs (older Intel iGPUs, most
+//     pre-2019 NVIDIA/AMD, Safari on macOS) have NO hardware VP9 decoder, so a
+//     1080p VP9/WebM is decoded in software on the CPU and stutters — most
+//     visibly as a hitch on every keyframe (~1/sec). H.264 is hardware-decoded
+//     on virtually every desktop, so it plays smoothly. The extra few MB is a
+//     non-issue on wifi (the file is fully buffered within a couple of seconds
+//     and then just loops). WebM stays as a second source only as a fallback.
+//
+//   • Mobile → VP9 WebM first. Phone SoCs almost universally ship a hardware
+//     VP9 decoder, so WebM plays smoothly AND is ~40% smaller, which matters on
+//     cellular. H.264 MP4 second covers iOS, which prefers it.
+//
+// Codec order is expressed by listing the preferred type first in `order`.
 // The poster paints instantly while the video streams in behind it.
+// The hero footage streams from a public Supabase Storage bucket, which is
+// CDN-backed and supports HTTP Range requests — so it loads from an edge node
+// near the visitor and streams/seeks smoothly, instead of being pulled from the
+// single-region app origin (which stuttered on mobile networks). Posters stay
+// local: they're tiny and should paint instantly with the rest of the page.
+// Override the base at build time with VITE_HERO_MEDIA_BASE if the project or
+// bucket ever changes.
+const HERO_MEDIA_BASE =
+  import.meta.env.VITE_HERO_MEDIA_BASE ||
+  "https://ryizbwtscuczqusoeuvc.supabase.co/storage/v1/object/public/hero-videos";
+
 const HERO_SOURCES = {
   desktop: {
-    mp4: "/hero-desktop.mp4",
-    webm: "/hero-desktop.webm",
+    mp4: `${HERO_MEDIA_BASE}/hero-desktop.mp4`,
+    webm: `${HERO_MEDIA_BASE}/hero-desktop.webm`,
     poster: "/hero-desktop-poster.jpg",
+    order: ["mp4", "webm"],
   },
   mobile: {
-    mp4: "/hero-mobile.mp4",
-    webm: "/hero-mobile.webm",
+    mp4: `${HERO_MEDIA_BASE}/hero-mobile.mp4`,
+    webm: `${HERO_MEDIA_BASE}/hero-mobile.webm`,
     poster: "/hero-mobile-poster.jpg",
+    order: ["webm", "mp4"],
   },
 } as const;
+
+const SOURCE_TYPE = { mp4: "video/mp4", webm: "video/webm" } as const;
 
 type HeroVariant = keyof typeof HERO_SOURCES;
 
@@ -90,16 +115,21 @@ const HeroSection = () => {
           muted
           loop
           playsInline
-          // "metadata" lets the browser stream the footage progressively instead
-          // of eagerly buffering the whole file the way "auto" does; autoplay
-          // still kicks off playback. The poster fills the hero in the meantime.
-          preload="metadata"
+          // For an autoplay background loop the footage is small (~1-4 MB) and
+          // *always* plays, so "auto" is the right call: it lets the browser
+          // buffer ahead of the playhead, which is what prevents stutter when a
+          // mobile connection briefly drops packets. "metadata" keeps the buffer
+          // razor-thin, so any network hiccup starves the decoder. The poster
+          // still paints instantly while the first frames stream in.
+          preload="auto"
           className="w-full h-full object-cover"
         >
-          {/* VP9 WebM first (smaller → faster load), H.264 MP4 as the universal
-              fallback for browsers that can't play WebM. */}
-          <source src={sources.webm} type="video/webm" />
-          <source src={sources.mp4} type="video/mp4" />
+          {/* Codec preference is per-variant (see HERO_SOURCES): desktop favours
+              hardware-decoded H.264 to avoid VP9 software-decode stutter; mobile
+              favours the smaller VP9 WebM. */}
+          {sources.order.map((codec) => (
+            <source key={codec} src={sources[codec]} type={SOURCE_TYPE[codec]} />
+          ))}
         </video>
         {/* Warm sunset wash on top of the footage so the cream/honey palette
             reads consistently with the rest of the page. */}
