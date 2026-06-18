@@ -72,11 +72,9 @@ export const WaveProvider = ({
   const [submerged, setSubmerged] = useState(false);
 
   useEffect(() => {
-    let rafId: number | null = null;
     let lastSubmerged = false;
 
     const update = () => {
-      rafId = null;
       const target = document.querySelector(targetSelector) as HTMLElement | null;
       if (!target) {
         if (lastSubmerged) { lastSubmerged = false; setSubmerged(false); }
@@ -131,17 +129,20 @@ export const WaveProvider = ({
       document.body.classList.toggle("lume-wave-frozen", isSubmerged);
     };
 
-    const onScroll = () => {
-      if (rafId === null) rafId = requestAnimationFrame(update);
-    };
-
+    // Run the update SYNCHRONOUSLY on every scroll event rather than deferring
+    // it to requestAnimationFrame. The wave is a fixed element whose position
+    // we drive ourselves, so any defer makes it trail the natively-scrolled
+    // section by a frame (the visible "delay"). Writing the transform inside
+    // the scroll handler lands it in the same frame the browser scrolls the
+    // page, so the crest stays glued to the section. The work is one
+    // getBoundingClientRect plus a few CSS-var writes — cheap enough to run
+    // inline, and browsers already coalesce scroll events to ~frame cadence.
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", update, { passive: true });
     window.addEventListener("resize", update);
 
     return () => {
-      if (rafId !== null) cancelAnimationFrame(rafId);
-      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
       const root = document.documentElement;
       root.style.removeProperty("--lume-wave-fill-y");
