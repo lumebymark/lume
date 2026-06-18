@@ -160,9 +160,9 @@ const Navbar = () => {
       style={{
         // Visual states:
         //   overHero     → fully transparent (hero shows through)
-        //   submerged    → opaque honey, matching the top of the contact gradient
-        //                  so text in the navbar stays readable as the section
-        //                  scrolls beneath it
+        //   submerged    → opaque gold, matching the wave body / top of the
+        //                  contact gradient so text in the navbar stays readable
+        //                  as the section scrolls beneath it
         //   darkScrolled → opaque espresso-brown (the footer colour) on scrolled
         //                  journal pages (listing + articles)
         //   journalTop   → opaque lume-cream matching the About Portugal page bg
@@ -171,7 +171,7 @@ const Navbar = () => {
           overHero
             ? "transparent"
             : submerged
-            ? "#ecbe5b"
+            ? "#e9a92e"
             : darkScrolled
             ? "#1a1108"
             : journalTop
